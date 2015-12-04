@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="UsePathFinder" Collapsed="true">
+    <Position X="4" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>Assets\AIRole\UsePathFinder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GraphBuilder" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GraphData" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACIBAAiQCQAAAAAAAAIAEAACAgBAACAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GraphNode" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAIAAAAEAAIAAAMAAAIAAAAAAEAAAACAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NodeEdge" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PathNode" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAEAAAAAQAAIAAAAAIAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PathFinder" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAgAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QueneElement&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PripriorityQueue&lt;T&gt;" Collapsed="true">
+    <Position X="7.5" Y="1.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAIEAA0BAAAAAAAAAAAQAAAAAAAAAAAAAQAAAMAAQAE=</HashCode>
+      <FileName>Assets\script\GraphData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LodeRunnerGraphBuilderGizmoDrawer" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LodeRunnerGraphBuilder" Collapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAwAAKABAAAUFQAIAFgABAgAASAiAABAAAAIEQIA=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AsiaBoy" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestArray" Collapsed="true">
+    <Position X="11.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgBAAAAAAAACA=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGraphNode" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQQAAAAAACAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>Assets\script\TestGraphNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGraphNodeEditor" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAACAAAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Assets\script\TestGraphNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TileCreatorGizmoDrawer" Collapsed="true">
+    <Position X="10.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Assets\script\TileCreator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TileCreator" Collapsed="true">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAABAEACAAAAAAAAAAAAAAAAhgAQAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Assets\script\TileCreator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TileData" Collapsed="true">
+    <Position X="2.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAEAAABAAAUAQAAAAgAABgAAQACAAAIAAAAAAAA=</HashCode>
+      <FileName>Assets\script\TileData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="TileMapValue" Collapsed="true">
+    <Position X="2.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAABACBAAAAAAAAAEgAAAQEAAAA=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Arrow" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABIAAAAAAAAAAAAAAAAACAAAAAAACACAAAEAAAI=</HashCode>
+      <FileName>Assets\script\LodeRunnerGraphBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="微軟正黑體" Size="9" />
+</ClassDiagram>
