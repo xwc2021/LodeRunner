@@ -422,7 +422,11 @@ public class Movable : MonoBehaviour {
         if (collider != null)
         {
             Movable other= collider.GetComponent<Movable>();
-            bool fitCommand = other.getMoveCommand() == MoveCommand.down
+
+            //因為存在這種case
+            //LodeRunnerScreenshot\fixed\梯子和繩子相碰case.jpg
+            bool fitCommand = other.getMoveCommand() == MoveCommand.up
+                || other.getMoveCommand() == MoveCommand.down
                 || other.getMoveCommand() == MoveCommand.left
                 || other.getMoveCommand() == MoveCommand.right
                 || other.getMoveCommand() == MoveCommand.stop;
