@@ -3,3 +3,5 @@ Temp/
 webgl/
 pc/
 .vs/LodeRunner/v14/.suo
+LodeRunner.CSharp.csproj
+LodeRunner.CSharp.Editor.csproj

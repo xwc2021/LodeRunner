@@ -45,19 +45,20 @@ public class AIMoveController : MonoBehaviour
             if (myD < d)
             {
                 if (Debug_Oncoming)
-                    printDebugMsg("我比較近");
+                    printDebugMsg("我比"+ai.name+ "近");
                 doFunction(this);
             }
             else if (myD > d)
             {
                 if (Debug_Oncoming)
-                    printDebugMsg("我比較遠");
+                    printDebugMsg("我比" + ai.name + "遠他的行動("+ai.movable.getMoveCommand().ToString()+")");
+
                 getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody,null,ai));
             }
             else //看來是平手了
             {
                 if (Debug_Oncoming)
-                    printDebugMsg("你等我");
+                    printDebugMsg(ai.name+"等我");
                 ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody,null,this));
                 doFunction(this);
             }
@@ -240,7 +241,7 @@ public class AIMoveController : MonoBehaviour
                     if (!stopMoveSituation && stopAndNoraml)//即將撞到normal
                     {
                         if (Debug_Oncoming)
-                            printDebugMsg("碰到了，記得要refindPath阿");
+                            printDebugMsg("[注意!]碰到了，記得要refindPath阿"+ai.name);
 
                         ai.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
                     }
@@ -462,7 +463,6 @@ public class AIMoveController : MonoBehaviour
 
         public override void enter(AIMoveController obj)
         {
-            //obj.printDebugMsg("enter AI Finding Path");
         }
 
         public override void execute(AIMoveController obj)
@@ -513,12 +513,16 @@ public class AIMoveController : MonoBehaviour
 
         public override void exit(AIMoveController obj)
         {
+            if (AIMoveController.Debug_AI_wait)
+                obj.printDebugMsg("exit AIWait State");
+
             obj.clearWaitAI();
+            obj.movable.sendMsgStopMove();//要記得切換到stop狀態
         }
 
         public override void execute(AIMoveController obj)
         {
-            obj.showNowState("AIWait State");
+            obj.showNowState("AIWait State("+obj.waitThisAI.name+")");
             if (obj.WaitTimeIsOver())
             {
                 obj.getSM().handleMessage(new StateMsg((int)AIMsg.moveTimeIsOver));
