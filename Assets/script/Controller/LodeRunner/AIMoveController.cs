@@ -165,7 +165,6 @@ public class AIMoveController : MonoBehaviour
     void clearWaitAI( ) { waitThisAI = null; }
     void sendMove(Vector2 dir)
     {
-        
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
             //左右移動
@@ -228,7 +227,8 @@ public class AIMoveController : MonoBehaviour
                 {
                     bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
 
-                    //有可能發生ai.movable.getSM().getCurrentState() == NormalState
+                    //為何要判斷stopAndOnLadder
+                    //LodeRunnerScreenshot\fixed\互等的情況.jpg
                     bool stopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();                    
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.left
@@ -242,7 +242,7 @@ public class AIMoveController : MonoBehaviour
                         if (Debug_Oncoming)
                             printDebugMsg("碰到了，記得要refindPath阿");
 
-                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, this));
+                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
                     }
 
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveUp);
@@ -562,7 +562,11 @@ public class AIMoveController : MonoBehaviour
 
         public override void execute(AIMoveController obj)
         {
-            obj.showNowState("AI Move ("+obj.getNowPathIndex ()+ ")");
+            GraphNode node = obj.getNowTarget(); ;
+            if(node!=null)
+                obj.showNowState("AI Move ["+obj.getNowPathIndex ()+ "]("+ node.nodeKey+")");
+            else
+                obj.showNowState("AI Move[" + obj.getNowPathIndex() + "]");
 
             obj.moveByPath();
             if (obj.getSM().getCurrentState() != this)//moveByPath有可能觸發狀態的改變(由Movable通知)
