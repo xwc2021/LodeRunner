@@ -11,7 +11,8 @@ public class AIMoveController : MonoBehaviour
     static float inTrapTime = 1.5f;
     static bool Debug_path_timeOut = false;
     static bool Debug_AI_wait = false;
-    static bool Debug_Oncoming = false;
+    static bool Debug_Oncoming = false;//迎面而來
+    static bool Debug_begin_move_but_notAligh = false;
 
     public Movable movable;
     public GraphMap graphMap;
@@ -22,6 +23,7 @@ public class AIMoveController : MonoBehaviour
     StateMachine<AIMoveController> sm;
     List<GraphNode> pathList = null;
     int nowPathIndex;
+    int getNowPathIndex() { return nowPathIndex; }
 
     public StateMachine<AIMoveController> getSM() { return sm; }
 
@@ -43,7 +45,7 @@ public class AIMoveController : MonoBehaviour
             if (myD < d)
             {
                 if (Debug_Oncoming)
-                printDebugMsg("我比較近");
+                    printDebugMsg("我比較近");
                 doFunction(this);
             }
             else if (myD > d)
@@ -108,19 +110,27 @@ public class AIMoveController : MonoBehaviour
             GraphNode one = pathList[0];
             GraphNode two = pathList[1];
 
-            //[0][1]是橫的，transfrom.y!=[0].y => nowPathIndex=0
+            //[0][1]是horizontal，transfrom.y!=[0].y => nowPathIndex=0
             if (one.getPosition().y == two.getPosition().y)
             {
                 if(transform.position.y!= one.getPosition().y)
+                {
+                    if(Debug_begin_move_but_notAligh)
+                        printDebugMsg("horizontal");
                     nowPathIndex = 0;
+                }
                 else
                     nowPathIndex = 1;
             }
-            //[0][1]是直的，transfrom.x!=[0].x => nowPathIndex=0
+            //[0][1]是vertical，transfrom.x!=[0].x => nowPathIndex=0
             else if (one.getPosition().x == two.getPosition().x)
             {
                 if (transform.position.x != one.getPosition().x)
+                {
+                    if(Debug_begin_move_but_notAligh)
+                        printDebugMsg("vertical");
                     nowPathIndex = 0;
+                }
                 else
                     nowPathIndex = 1;
             }
@@ -217,11 +227,24 @@ public class AIMoveController : MonoBehaviour
                 if (ai != null)
                 {
                     bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
-                    bool stopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();
+
+                    //有可能發生ai.movable.getSM().getCurrentState() == NormalState
+                    bool stopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();                    
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.left
                         || ai.getMoveCommand() == MoveCommand.right;
                     bool stopMoveSituation = fitCommand || aiWaitButNotForMe || stopAndOnLadder;
+
+                    bool stopAndNoraml = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.NormalState.Instance();
+
+                    if (!stopMoveSituation && stopAndNoraml)//即將撞到normal
+                    {
+                        if (Debug_Oncoming)
+                            printDebugMsg("碰到了，記得要refindPath阿");
+
+                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, this));
+                    }
+
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveUp);
                 }
                 else
@@ -539,7 +562,7 @@ public class AIMoveController : MonoBehaviour
 
         public override void execute(AIMoveController obj)
         {
-            obj.showNowState("AI Move");
+            obj.showNowState("AI Move ("+obj.getNowPathIndex ()+ ")");
 
             obj.moveByPath();
             if (obj.getSM().getCurrentState() != this)//moveByPath有可能觸發狀態的改變(由Movable通知)

@@ -734,7 +734,7 @@ public class Movable : MonoBehaviour {
         public override void exit(Movable obj) { }
         public override void execute(Movable obj)
         {
-            obj.showNowState("Normal State (" + obj.getMoveCommand().ToString() + ")");
+            obj.showNowState("Normal Stater(" + obj.getMoveCommand().ToString() + ")");
         }
 
         public override void onMessage(Movable obj, StateMsg msg)
