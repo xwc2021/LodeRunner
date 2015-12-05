@@ -126,6 +126,8 @@ public class Movable : MonoBehaviour {
     //(1)玩家降落到rope時，要再發送一次MoveDown(因為Normal狀態重力會關掉)
     // .
     //-----
+
+    bool isFootTouchAI = false; 
     void checkFootArea(int mask)
     {
         float hwidth = 0.41f;//比collider box稍寬
@@ -142,13 +144,16 @@ public class Movable : MonoBehaviour {
         Debug.DrawLine(leftUp, leftDown, Color.blue);
         Debug.DrawLine(rightUp, rightDown, Color.blue);
 
-        Collider2D touchZone = Physics2D.OverlapArea(leftUp, rightDown, mask);//這連trigger都會判定
-        if (touchZone != null)
+        Collider2D footTouchZone = Physics2D.OverlapArea(leftUp, rightDown, mask);//這連trigger都會判定
+        if (footTouchZone != null)
         {
+            isFootTouchAI = footTouchZone.tag == "Monster";
+            
+
             sendMsgLanding();
 
             //如果從上面落下碰到rope，要主動往rope移動
-            if (touchZone.tag == "Rope")
+            if (footTouchZone.tag == "Rope")
             {
                 bool downIsRope = downTileIsRope();
                 bool downIsBlock = downTileIsBlock();
@@ -183,11 +188,11 @@ public class Movable : MonoBehaviour {
                 }    
             }
             //取消Brick的FadeOut
-            else if (touchZone.tag == "Brick")
+            else if (footTouchZone.tag == "Brick")
             {
                 if (tag == "Monster")
                 {
-                    Brick brick = touchZone.GetComponent<Brick>();
+                    Brick brick = footTouchZone.GetComponent<Brick>();
                     StateMachine<Brick> sm = brick.getSM();
                     if (sm != null)
                     {
@@ -731,9 +736,14 @@ public class Movable : MonoBehaviour {
 
             obj.doStopMove();
 
-            //並且下面的tile是ladder、Rope、Brick、Stone、trap要調整高度
-            if (obj.downTileIsLadder() || obj.downTileIsBlock() || obj.downTileIsRope() || obj.nowTileIsBrick())
-                obj.adjustY();
+            //修正AI踩到AI就瞬移的問題
+            if (!obj.isFootTouchAI)
+            { 
+                //並且下面的tile是ladder、Rope、Brick、Stone、trap要調整高度
+                if (obj.downTileIsLadder() || obj.downTileIsBlock() || obj.downTileIsRope() || obj.nowTileIsBrick())
+                    obj.adjustY();
+
+            }
         }
         public override void exit(Movable obj) { }
         public override void execute(Movable obj)

@@ -238,13 +238,8 @@ public class AIMoveController : MonoBehaviour
 
                     bool stopAndNoraml = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.NormalState.Instance();
 
-                    if (!stopMoveSituation && stopAndNoraml)//即將撞到normal
-                    {
-                        if (Debug_Oncoming)
-                            printDebugMsg("[注意!]碰到了，記得要refindPath阿"+ai.name);
-
-                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
-                    }
+                    if(Debug_Oncoming)
+                        printDebugMsg("[注意]up is stopAndNoraml");
 
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveUp);
                 }
