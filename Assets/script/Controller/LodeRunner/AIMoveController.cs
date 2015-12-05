@@ -227,20 +227,25 @@ public class AIMoveController : MonoBehaviour
                 if (ai != null)
                 {
                     bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
-
-                    //為何要判斷stopAndOnLadder
-                    //LodeRunnerScreenshot\fixed\互等的情況.jpg
-                    bool stopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();                    
+  
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.left
                         || ai.getMoveCommand() == MoveCommand.right;
-                    bool stopMoveSituation = fitCommand || aiWaitButNotForMe || stopAndOnLadder;
 
-                    bool stopAndNoraml = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.NormalState.Instance();
+                    //LodeRunnerScreenshot\fixed\互等的情況.jpg
+                    //爬梯子往上，碰到上面的AI是stop時，自己才要stop         
+                    bool aiStopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();
 
-                    if(Debug_Oncoming)
-                        printDebugMsg("[注意]up is stopAndNoraml");
+                    bool stopMoveSituation = fitCommand || aiWaitButNotForMe || aiStopAndOnLadder;
 
+                    if (Debug_Oncoming)
+                    {
+                        if (aiStopAndOnLadder)
+                            printDebugMsg("[注意]aiStopAndOnLadder");
+                        else
+                            printDebugMsg("[注意]aiStop but not OnLadder");
+                    }
+                    
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveUp);
                 }
                 else
