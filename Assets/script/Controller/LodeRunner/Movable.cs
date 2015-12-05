@@ -11,6 +11,7 @@ public class Movable : MonoBehaviour {
     public static float MoveEpsilon = 0.01f;
     static bool Debug_enter_state = false;
     static bool Debug_do_moveUp = false;
+    static bool Debug_adjustY = false;
     static bool Debug_fall_to_align_rope = false;
 
     //               --
@@ -277,7 +278,8 @@ public class Movable : MonoBehaviour {
         float newY = graphBuilder.getTileCenterPositionInWorld(old).y ;
         transform.position = new Vector3(old.x, newY, 0);
         
-        //Debug.Log(name+":對齊高度 "+newY);
+        if(Debug_adjustY)
+            Debug.Log(name+":對齊高度 "+newY);
     }
 
     public void sendMsgOnLadder(){sm.handleMessage(new StateMsg((int)MovableMsg.onLabber));}
@@ -679,7 +681,7 @@ public class Movable : MonoBehaviour {
         }
         public override void execute(Movable obj)
         {
-            obj.showNowState("OnAir State");
+            obj.showNowState("OnAir State ("+ obj.getMoveCommand().ToString()+")");
             obj.doOnAirMove();
         }
 
@@ -776,7 +778,7 @@ public class Movable : MonoBehaviour {
                     //通知發訊者此動作無效
                     if (msg.sender != null)
                     {
-                        //解決在梯子卡點的問題
+                        //解決[在梯子卡點]的問題
                         //從H往下走，但因為有其他AI檔在下面，所以進入stop；之後reFindPath，y就會低於pathNode
                         //  O
                         //口H口口
