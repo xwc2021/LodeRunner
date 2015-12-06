@@ -6,7 +6,7 @@ using System;
 public class AIMoveController : MonoBehaviour
 {
     //參數
-    static float waitTime = 0.5f;
+    static float waitTime = 0.6f;
     static float movingTime = 2;
     static float inTrapTime = 1.5f;
     static bool Debug_path_timeOut = false;
