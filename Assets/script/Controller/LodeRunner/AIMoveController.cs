@@ -181,10 +181,11 @@ public class AIMoveController : MonoBehaviour
                 {
                     bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI()!=this;
                     bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y)<0.5f;
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.right
                         || ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.down
-                    || ai.getMoveCommand() == MoveCommand.stop;
+                    || ( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe ;
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveRight);
                 }
@@ -203,10 +204,11 @@ public class AIMoveController : MonoBehaviour
                 {
                     bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
                     bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.left
                         || ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.down
-                    || ai.getMoveCommand() == MoveCommand.stop;
+                    ||( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe  ;
                     handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveLeft);
                 }
@@ -386,12 +388,13 @@ public class AIMoveController : MonoBehaviour
         sendMove(diff);
     }
 
-    static int footMask = LayerMask.GetMask("FootCanTouch", "aiFootCanTouch", "AI");
-    static int AIMask = LayerMask.GetMask("AI");
+    int footMask;
+    int AIMask;
     // Use this for initialization
     void Awake() {
         sm = new StateMachine<AIMoveController>(this, AIFindingPathState.Instance());
-        
+        footMask = LayerMask.GetMask("FootCanTouch", "aiFootCanTouch", "AI");
+        AIMask = LayerMask.GetMask("AI");
     }
 	
 	// Update is called once per frame

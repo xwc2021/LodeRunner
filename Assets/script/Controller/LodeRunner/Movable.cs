@@ -28,7 +28,7 @@ public class Movable : MonoBehaviour {
     public float velocity = 1;
     public Rigidbody2D rigid;
     public LodeRunnerGraphBuilder graphBuilder;
-    static int AIMask = LayerMask.GetMask("AI");
+    int AIMask;
 
     StateMachine<Movable> sm;
     public StateMachine<Movable> getSM(){ return sm; }
@@ -38,6 +38,7 @@ public class Movable : MonoBehaviour {
     bool getAdjustXWhenOnAir() { return asjustXWhenOnAir; }
     void Awake()
     {
+        AIMask = LayerMask.GetMask("AI");
         sm = new StateMachine<Movable>(this, OnAirState.Instance());
     }
 

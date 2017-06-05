@@ -8,11 +8,12 @@ public class UserMoveController : MonoBehaviour
     public LodeRunnerGraphBuilder graphBuilder;
     public TileCreator tileCreator;
 
-    public static int footMask = LayerMask.GetMask("FootCanTouch", "AI");
+    public static int footMask;
 
     void Awake()
     {
         movable.setAdjustXWhenOnAir(false);
+        footMask = LayerMask.GetMask("FootCanTouch", "AI");
     }
 
     void Update()
