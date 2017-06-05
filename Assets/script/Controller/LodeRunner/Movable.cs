@@ -131,8 +131,7 @@ public class Movable : MonoBehaviour {
     bool isFootTouchAI = false; 
     void checkFootArea(int mask)
     {
-        bool onAir =sm.getCurrentState() == OnAirState.Instance();
-        float hwidth = onAir?0.38f:0.41f;//比collider box稍寬
+        float hwidth = 0.41f;//比collider box稍寬
         float top = -0.5f;
         float down = -0.65f;
         Vector2 pos = transform.position;
