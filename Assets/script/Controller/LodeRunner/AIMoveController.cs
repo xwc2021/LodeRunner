@@ -28,40 +28,34 @@ public class AIMoveController : MonoBehaviour
     public StateMachine<AIMoveController> getSM() { return sm; }
 
     delegate void funPtr(MonoBehaviour sender);
-    void handleTooClose(AIMoveController ai,bool stopMoveSituation, funPtr doFunction)
+    void handleTooClose(AIMoveController ai, funPtr doFunction)
     {
-        if (stopMoveSituation)
+        //迎面而來的情況 => <=
+        //比較距離，近者勝出；距離一樣，先搶先贏
+        Vector2 v1 = transform.position - nowTarget.getPosition();
+        Vector2 v2 = ai.transform.position - nowTarget.getPosition();
+        float myD = v1.sqrMagnitude;
+        float d = v2.sqrMagnitude;
+
+        if (myD < d)
         {
-            movable.sendMsgStopMove();
+            if (Debug_Oncoming)
+                printDebugMsg("我比" + ai.name + "近");
+            doFunction(this);
         }
-        else//所以是這種情況(迎面而來) => <=
+        else if (myD > d)
         {
-            //比較距離，近者勝出；距離一樣，先搶先贏
-            Vector2 v1 = transform.position - nowTarget.getPosition();
-            Vector2 v2 = ai.transform.position - nowTarget.getPosition();
-            float myD = v1.sqrMagnitude;
-            float d = v2.sqrMagnitude;
+            if (Debug_Oncoming)
+                printDebugMsg("我比" + ai.name + "遠他的行動(" + ai.movable.getMoveCommand().ToString() + ")");
 
-            if (myD < d)
-            {
-                if (Debug_Oncoming)
-                    printDebugMsg("我比"+ai.name+ "近");
-                doFunction(this);
-            }
-            else if (myD > d)
-            {
-                if (Debug_Oncoming)
-                    printDebugMsg("我比" + ai.name + "遠他的行動("+ai.movable.getMoveCommand().ToString()+")");
-
-                getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody,null,ai));
-            }
-            else //看來是平手了
-            {
-                if (Debug_Oncoming)
-                    printDebugMsg(ai.name+"等我");
-                ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody,null,this));
-                doFunction(this);
-            }
+            getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, ai));
+        }
+        else //看來是平手了
+        {
+            if (Debug_Oncoming)
+                printDebugMsg(ai.name + "等我");
+            ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, this));
+            doFunction(this);
         }
     }
 
@@ -187,7 +181,10 @@ public class AIMoveController : MonoBehaviour
                         || ai.getMoveCommand() == MoveCommand.down
                     || ( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe ;
-                    handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveRight);
+                    if (stopMoveSituation)
+                        movable.sendMsgStopMove();
+
+                    handleTooClose(ai, movable.sendMsgMoveRight);
                 }
                 else
                     movable.sendMsgMoveRight();
@@ -210,7 +207,10 @@ public class AIMoveController : MonoBehaviour
                         || ai.getMoveCommand() == MoveCommand.down
                     ||( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe  ;
-                    handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveLeft);
+                    if (stopMoveSituation)
+                        movable.sendMsgStopMove();
+
+                    handleTooClose(ai, movable.sendMsgMoveLeft);
                 }
                 else
                     movable.sendMsgMoveLeft();
@@ -247,8 +247,11 @@ public class AIMoveController : MonoBehaviour
                         else
                             printDebugMsg("[注意]aiStop but not OnLadder");
                     }
-                    
-                    handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveUp);
+
+                    if (stopMoveSituation)
+                        movable.sendMsgStopMove();
+
+                    handleTooClose(ai, movable.sendMsgMoveUp);
                 }
                 else
                     movable.sendMsgMoveUp(this);
@@ -268,7 +271,11 @@ public class AIMoveController : MonoBehaviour
                         || ai.getMoveCommand() == MoveCommand.right
                         || ai.getMoveCommand() == MoveCommand.stop;
                     bool stopMoveSituation = fitCommand || aiWaitButNotForMe;
-                    handleTooClose(ai, stopMoveSituation, movable.sendMsgMoveDown);
+
+                    if (stopMoveSituation)
+                        movable.sendMsgStopMove();   
+
+                    handleTooClose(ai, movable.sendMsgMoveDown);
                 }
                 else 
                     movable.sendMsgMoveDown();

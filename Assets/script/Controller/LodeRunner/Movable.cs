@@ -153,55 +153,67 @@ public class Movable : MonoBehaviour {
 
             sendMsgLanding();
 
-            //如果從上面落下碰到rope，要主動往rope移動
-            if (footTouchZone.tag == "Rope")
+
+            switch (footTouchZone.tag)
             {
-                bool downIsRope = downTileIsRope();
-                bool downIsBlock = downTileIsBlock();
+                case "Rope": //如果從上面落下碰到rope，要主動往rope移動
+                    bool downIsRope = downTileIsRope();
+                    bool downIsBlock = downTileIsBlock();
 
-                //掉到繩子上要自動觸發fall to Align Rope
-                if (downIsRope && !downIsBlock)
-                {
-                    //case 1:airToNormal
-                    //
-                    //          .   
-                    //        _____
-
-                    //case 2:ropeToNormal
-                    //
-                    //     ___.=>
-                    //        _____
-
-                    //case 3:LadderToNormal 
-                    // 
-                    //        =>
-                    //      H_____     
-
-                    //case 4:FromBlock
-                    // 
-                    //        =>
-                    //   _  _ ____  
-                    //  |_||_| 
-
-                    if(Movable.Debug_fall_to_align_rope)
-                        Debug.Log(name + ":fall To Align Rope Case [注意!] ");
-                    getSM().handleMessage(new StateMsg((int)MovableMsg.fallToAlignRope));
-                }    
-            }
-            //取消Brick的FadeOut
-            else if (footTouchZone.tag == "Brick")
-            {
-                if (tag == "Monster")
-                {
-                    Brick brick = footTouchZone.GetComponent<Brick>();
-                    StateMachine<Brick> sm = brick.getSM();
-                    if (sm != null)
+                    //掉到繩子上要自動觸發fall to Align Rope
+                    if (downIsRope && !downIsBlock)
                     {
-                        Debug.Log("cancel FadeOut");
-                        sm.handleMessage(new StateMsg((int)BrickMsg.chancelFadeOut));
+                        //case 1:airToNormal
+                        //
+                        //          .   
+                        //        _____
+
+                        //case 2:ropeToNormal
+                        //
+                        //     ___.=>
+                        //        _____
+
+                        //case 3:LadderToNormal 
+                        // 
+                        //        =>
+                        //      H_____     
+
+                        //case 4:FromBlock
+                        // 
+                        //        =>
+                        //   _  _ ____  
+                        //  |_||_| 
+
+                        if (Movable.Debug_fall_to_align_rope)
+                            Debug.Log(name + ":fall To Align Rope Case [注意!] ");
+                        getSM().handleMessage(new StateMsg((int)MovableMsg.fallToAlignRope));
                     }
-                }
+                    break;
+
+                case "Brick": //取消Brick的FadeOut
+                    if (tag == "Monster")
+                    {
+                        Brick brick = footTouchZone.GetComponent<Brick>();
+                        StateMachine<Brick> sm = brick.getSM();
+                        if (sm != null)
+                        {
+                            Debug.Log("cancel FadeOut");
+                            sm.handleMessage(new StateMsg((int)BrickMsg.chancelFadeOut));
+                        }
+                    }
+                    break;
+
+    
+                case "Monster":
+                    Vector2 dis = transform.position - footTouchZone.gameObject.transform.position;
+
+                    //這種清況不算踩到
+                    //see LodeRunnerScreenshot\fixed\another_onAir_condition.png
+                    if (Mathf.Abs(dis.y) < 1.0f && Mathf.Abs(dis.x)>0.8f)
+                        sendMsgOnAir();
+                    break;   
             }
+        
         }
         else
         {
