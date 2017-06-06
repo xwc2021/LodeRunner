@@ -16,36 +16,59 @@ public class UserMoveController : MonoBehaviour
         footMask = LayerMask.GetMask("FootCanTouch", "AI");
     }
 
+    bool doMoving=false;
     void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-            movable.sendMsgMoveLeft();
-        else if (Input.GetKeyUp(KeyCode.A))
-            movable.sendMsgStopMove();
+        bool needPushCommand = doMoving
+            && movable.getMoveCommand() == MoveCommand.stop;
+        
+        if (!doMoving || needPushCommand)
+        {
+            if (Input.GetKey(KeyCode.A))
+            {
+                movable.DefferedMoveLeft();
+                doMoving = true;
+            }
 
-        if (Input.GetKey(KeyCode.D))
-            movable.sendMsgMoveRight();
-        else if (Input.GetKeyUp(KeyCode.D))
-            movable.sendMsgStopMove();
+            if (Input.GetKey(KeyCode.D))
+            {
+                movable.DefferedMoveRight();
+                doMoving = true;
+            }
 
-        if (Input.GetKey(KeyCode.W))
-            movable.sendMsgMoveUp();
-        else if (Input.GetKeyUp(KeyCode.W))
-            movable.sendMsgStopMove();
+            if (Input.GetKey(KeyCode.W))
+            { 
+                movable.DefferedMoveUp();
+                doMoving = true;
+            }
 
-        if (Input.GetKey(KeyCode.S))
-            movable.sendMsgMoveDown();
-        else if (Input.GetKeyUp(KeyCode.S))
-            movable.sendMsgStopMove();
+            if (Input.GetKey(KeyCode.S))
+            { 
+                movable.DefferedMoveDown();
+                doMoving = true;
+            }
+        }
 
-        movable.UpdateMove(footMask);
+        bool keyUp = Input.GetKeyUp(KeyCode.A)
+            || Input.GetKeyUp(KeyCode.D)
+            || Input.GetKeyUp(KeyCode.W)
+            || Input.GetKeyUp(KeyCode.S);
 
+        if (keyUp)
+            movable.DefferedStop();
+       
+       
         //挖洞
         if (Input.GetKeyDown(KeyCode.J))
             digHole(-1,-1);
 
         if (Input.GetKeyDown(KeyCode.K))
             digHole(1,-1);
+    }
+
+    private void FixedUpdate()
+    {
+        movable.UpdateMove(footMask);
     }
 
     void digHole(int offsetX,int offsetY)

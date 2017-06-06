@@ -12,7 +12,7 @@ public class StateMachine<T>
         changeState(pCurrent);
     }
 
-    public void handleMessage(StateMsg msg)
+    public void handleMessage(StateMsg<T> msg)
     {
         current.onMessage(obj,msg);
     }
@@ -43,22 +43,20 @@ public class StateMachine<T>
     }
 }
 
-public class StateMsg
+public class StateMsg<T>
 {
     public int type;
-    public MonoBehaviour sender;
-    public object obj;
-    public StateMsg(int pType, MonoBehaviour pSender=null,object pObj = null)
+    public T sender;
+    public StateMsg(int pType, T pSender)
     {
         type = pType;
-        obj = pObj;
         sender = pSender;
     }
 }
 
 public class State<T>
 {
-    public virtual void onMessage(T obj, StateMsg msg) { }
+    public virtual void onMessage(T obj, StateMsg<T> msg) { }
     public virtual void enter(T obj) { }
     public virtual void exit(T obj) { }
     public virtual void execute(T obj) { }

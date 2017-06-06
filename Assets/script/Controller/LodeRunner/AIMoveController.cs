@@ -10,8 +10,8 @@ public class AIMoveController : MonoBehaviour
     static float movingTime = 2;
     static float inTrapTime = 1.5f;
     static bool Debug_path_timeOut = false;
-    static bool Debug_AI_wait = false;
-    static bool Debug_Oncoming = false;//迎面而來
+    static bool Debug_AI_wait = true;
+    
     static bool Debug_begin_move_but_notAligh = false;
 
     public Movable movable;
@@ -19,7 +19,7 @@ public class AIMoveController : MonoBehaviour
     public UserMoveController player;
     public bool debugPath = false;
 
-    float accumulationTime;
+    public float accumulationTime;
     StateMachine<AIMoveController> sm;
     List<GraphNode> pathList = null;
     int nowPathIndex;
@@ -27,50 +27,7 @@ public class AIMoveController : MonoBehaviour
 
     public StateMachine<AIMoveController> getSM() { return sm; }
 
-    delegate void funPtr(MonoBehaviour sender);
-    void handleTooClose(AIMoveController ai, funPtr doFunction)
-    {
-        //迎面而來的情況 => <=
-        //比較距離，近者勝出；距離一樣，先搶先贏
-        Vector2 v1 = transform.position - nowTarget.getPosition();
-        Vector2 v2 = ai.transform.position - nowTarget.getPosition();
-        float myD = v1.sqrMagnitude;
-        float d = v2.sqrMagnitude;
 
-        if (name == "A")
-            print((myD < d) + "," + (myD > d));
-
-        if (myD < d)
-        {
-            if (Debug_Oncoming)
-                printDebugMsg("我比" + ai.name + "近");
-            doFunction(this);
-        }
-        else if (myD > d)
-        {
-            if (Debug_Oncoming)
-                printDebugMsg("我比" + ai.name + "遠他的行動(" + ai.movable.getMoveCommand().ToString() + ")");
-
-            getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, ai));
-        }
-        else //看來是平手了
-        {
-            if (Debug_Oncoming)
-                printDebugMsg(ai.name + "等我");
-            ai.getSM().handleMessage(new StateMsg((int)AIMsg.waitForSomebody, null, this));
-            doFunction(this);
-        }
-    }
-
-    AIMoveController tooCloseDetect(Vector2 leftUp,Vector2 rightUp, Vector2 leftDown, Vector2 rightDown)
-    {
-        Collider2D touchZone = movable.tooCloseDetect(leftUp, rightUp, leftDown, rightDown, AIMask);
-
-        if (touchZone != null)
-            return touchZone.GetComponent<AIMoveController>();
-        else
-            return null;
-    }
 
     public void catchByTrap()
     {
@@ -151,140 +108,17 @@ public class AIMoveController : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             //Kinematic和Kinematic不會發生碰撞，但Kinematic和RigidBody會
-            getSM().handleMessage(new StateMsg((int)AIMsg.catchPlayer));
+            getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.catchPlayer,null));
         }
     }
 
-    MoveCommand getMoveCommand() { return movable.getMoveCommand(); }
+    public MoveCommand getMoveCommand() { return movable.getMoveCommand(); }
 
     AIMoveController waitThisAI=null;
-    AIMoveController getWaitAI() { return waitThisAI; }
+    public AIMoveController getWaitAI() { return waitThisAI; }
     void setWaitThisAI(AIMoveController ai) { waitThisAI = ai; }
     void clearWaitAI( ) { waitThisAI = null; }
-    void sendMove(Vector2 dir)
-    {
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-        {
-            //左右移動
-            if (dir.x > 0)
-            {
-                AIMoveController ai = tooCloseDetect(
-                    new Vector2(Movable.tooCloseOffset, Movable.tooCloseHalfLongSide),
-                    new Vector2(Movable.tooCloseOffset + Movable.tooCloseShortSide,Movable.tooCloseHalfLongSide),
-                    new Vector2(Movable.tooCloseOffset,-Movable.tooCloseHalfLongSide), 
-                    new Vector2(Movable.tooCloseOffset + Movable.tooCloseShortSide, -Movable.tooCloseHalfLongSide)
-                    );
-                if (ai != null)
-                {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI()!=this;
-                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
-                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y)<0.5f;
-                    bool fitCommand = ai.getMoveCommand() == MoveCommand.right
-                        || ai.getMoveCommand() == MoveCommand.up
-                        || ai.getMoveCommand() == MoveCommand.down
-                    || ( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
-                    bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe ;
-                    if (stopMoveSituation)
-                        movable.sendMsgStopMove();
-                    else
-                        handleTooClose(ai, movable.sendMsgMoveRight);
-                }
-                else
-                    movable.sendMsgMoveRight();
-            }
-            else if (dir.x < 0)
-            {
-                AIMoveController ai = tooCloseDetect(
-                    new Vector2(-Movable.tooCloseOffset, Movable.tooCloseHalfLongSide),
-                    new Vector2(-Movable.tooCloseOffset - Movable.tooCloseShortSide, Movable.tooCloseHalfLongSide),
-                    new Vector2(-Movable.tooCloseOffset, -Movable.tooCloseHalfLongSide), 
-                    new Vector2(-Movable.tooCloseOffset - Movable.tooCloseShortSide, -Movable.tooCloseHalfLongSide)
-                    );
-                if (ai != null)
-                {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
-                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
-                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
-                    bool fitCommand = ai.getMoveCommand() == MoveCommand.left
-                        || ai.getMoveCommand() == MoveCommand.up
-                        || ai.getMoveCommand() == MoveCommand.down
-                    ||( ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
-                    bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe  ;
-                    if (stopMoveSituation)
-                        movable.sendMsgStopMove();
-                    else
-                        handleTooClose(ai, movable.sendMsgMoveLeft);
-                }
-                else
-                    movable.sendMsgMoveLeft();
-            }
-        }
-        else
-        {
-            //上下移動
-            if (dir.y > 0)
-            {
-                AIMoveController ai = tooCloseDetect(new Vector2(-Movable.tooCloseHalfLongSide, Movable.tooCloseOffset + Movable.tooCloseShortSide),
-                    new Vector2(Movable.tooCloseHalfLongSide, Movable.tooCloseOffset + Movable.tooCloseShortSide), 
-                    new Vector2(-Movable.tooCloseHalfLongSide, Movable.tooCloseOffset ), 
-                    new Vector2(Movable.tooCloseHalfLongSide, Movable.tooCloseOffset )
-                    );
-                if (ai != null)
-                {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
-  
-                    bool fitCommand = ai.getMoveCommand() == MoveCommand.up
-                        || ai.getMoveCommand() == MoveCommand.left
-                        || ai.getMoveCommand() == MoveCommand.right;
-
-                    //LodeRunnerScreenshot\fixed\互等的情況.jpg
-                    //爬梯子往上，碰到上面的AI是stop時，自己才要stop         
-                    bool aiStopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();
-
-                    bool stopMoveSituation = fitCommand || aiWaitButNotForMe || aiStopAndOnLadder;
-
-                    if (Debug_Oncoming)
-                    {
-                        if (aiStopAndOnLadder)
-                            printDebugMsg("[注意]aiStopAndOnLadder");
-                        else
-                            printDebugMsg("[注意]aiStop but not OnLadder");
-                    }
-
-                    if (stopMoveSituation)
-                        movable.sendMsgStopMove();
-                    else
-                        handleTooClose(ai, movable.sendMsgMoveUp);
-                }
-                else
-                    movable.sendMsgMoveUp(this);
-            }
-            else if (dir.y < 0)
-            {
-                AIMoveController ai = tooCloseDetect(new Vector2(-Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset - Movable.tooCloseShortSide),
-                    new Vector2(Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset - Movable.tooCloseShortSide), 
-                    new Vector2(-Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset), 
-                    new Vector2(Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset)
-                    );
-                if (ai != null)
-                {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this;
-                    bool fitCommand = ai.getMoveCommand() == MoveCommand.down
-                        || ai.getMoveCommand() == MoveCommand.left
-                        || ai.getMoveCommand() == MoveCommand.right
-                        || ai.getMoveCommand() == MoveCommand.stop;
-                    bool stopMoveSituation = fitCommand || aiWaitButNotForMe;
-
-                    if (stopMoveSituation)
-                        movable.sendMsgStopMove();   
-                    else
-                        handleTooClose(ai, movable.sendMsgMoveDown);
-                }
-                else 
-                    movable.sendMsgMoveDown();
-            }  
-        }
-    }
+ 
 
     bool isPlayerOnTop = false;
     List<Vector3> pathFromTrap;
@@ -339,6 +173,7 @@ public class AIMoveController : MonoBehaviour
             return false;
     }
 
+    public bool movingToNode = false;
     void moveFromTrap()//return isFinish
     {
         if (nowPathIndex == pathFromTrap.Count)//到了
@@ -352,13 +187,19 @@ public class AIMoveController : MonoBehaviour
             movable.sendMsgStopMove();
             transform.position = nowTarget;
             nowPathIndex += 1;
+            movingToNode = false;
             return;
         }
         else
         {
             Debug.DrawLine(nowTarget, transform.position, Color.red);
         }
-        sendMove(diff);
+
+        if (!movingToNode)
+        {
+            movable.DefferedMove(diff);
+            movingToNode = true;
+        }
 
     }
 
@@ -370,7 +211,7 @@ public class AIMoveController : MonoBehaviour
     }
 
     GraphNode nowTarget = null;
-    GraphNode getNowTarget() { return nowTarget; }
+    public GraphNode getNowTarget() { return nowTarget; }
     void moveByPath()//return isFinish
     {
         if (nowPathIndex == pathList.Count)//到了
@@ -382,20 +223,33 @@ public class AIMoveController : MonoBehaviour
         //落到地面時可能不成立，因為GraphNode和角色的y有落差(落地觸發reFindPath)
         if (diff.sqrMagnitude < Movable.MoveEpsilon)//非常接近了，瞄準下個節點
         {
-            //Debug.Log("到達:"+nowTarget.nodeKey);
+            showNowState("到達:"+nowTarget.nodeKey);
 
             movable.sendMsgStopMove();
             transform.position = nowTarget.getPosition();
 
             nowPathIndex += 1;
+            movingToNode = false;
+
+            //這裡要再更新一次，不然fixedUpdate可能用到舊資料
+            diff = nowTarget.getPosition() - transform.position;
+            movable.DefferedMove(diff);
             return;
         }
         else
         {        
             Debug.DrawLine(nowTarget.getPosition(), transform.position, Color.red);
+            showNowState("AI Move [" + getNowPathIndex() + "](" + nowTarget.nodeKey + ")");
         }
 
-        sendMove(diff);
+        bool needPushCommand = movingToNode
+            && (movable.getMoveCommand() == MoveCommand.stop );
+
+        if (!movingToNode)
+        {
+            movable.DefferedMove(diff);
+            movingToNode = true;
+        }
     }
 
     int footMask;
@@ -409,11 +263,14 @@ public class AIMoveController : MonoBehaviour
 
     // Update is called once per frame
     public string nowState;// for debug
-    void FixedUpdate () {
-
+    private void Update()
+    {
         sm.execute();
         nowState = sm.getCurrentState().ToString();
+    }
 
+    void FixedUpdate()
+    {
         movable.UpdateMove(footMask);
     }
 
@@ -484,10 +341,10 @@ public class AIMoveController : MonoBehaviour
         {
             obj.showNowState("Finding Path");
             if (obj.isFindPath(obj.transform.position))
-                obj.getSM().handleMessage(new StateMsg((int)AIMsg.findPathOk));
+                obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.findPathOk,null));
         }
 
-        public override void onMessage(AIMoveController obj, StateMsg msg)
+        public override void onMessage(AIMoveController obj, StateMsg<AIMoveController> msg)
         {
             AIMsg type = (AIMsg)msg.type;
             switch (type)
@@ -505,7 +362,7 @@ public class AIMoveController : MonoBehaviour
         }
     }
 
-    class AIWaitState : State<AIMoveController>
+    public class AIWaitState : State<AIMoveController>
     {
         private AIWaitState() { }
         static AIWaitState instance;
@@ -540,12 +397,12 @@ public class AIMoveController : MonoBehaviour
             obj.showNowState("AIWait State("+obj.waitThisAI.name+")");
             if (obj.WaitTimeIsOver())
             {
-                obj.getSM().handleMessage(new StateMsg((int)AIMsg.moveTimeIsOver));
+                obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveTimeIsOver,null));
                 return;
             }
         }
 
-        public override void onMessage(AIMoveController obj, StateMsg msg)
+        public override void onMessage(AIMoveController obj, StateMsg<AIMoveController> msg)
         {
             AIMsg type = (AIMsg)msg.type;
             switch (type)
@@ -577,23 +434,18 @@ public class AIMoveController : MonoBehaviour
         public override void exit(AIMoveController obj)
         {
             //obj.printDebugMsg("exit AIMoveState");
+            obj.movingToNode = false;
         }
 
         public override void execute(AIMoveController obj)
         {
-            GraphNode node = obj.getNowTarget(); ;
-            if(node!=null)
-                obj.showNowState("AI Move ["+obj.getNowPathIndex ()+ "]("+ node.nodeKey+")");
-            else
-                obj.showNowState("AI Move[" + obj.getNowPathIndex() + "]");
-
             obj.moveByPath();
             if (obj.getSM().getCurrentState() != this)//moveByPath有可能觸發狀態的改變(由Movable通知)
                 return;
 
             if (obj.isFinshMoveByPath())
             {
-                obj.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
+                obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
                 return;
             }
 
@@ -603,7 +455,7 @@ public class AIMoveController : MonoBehaviour
                 {
                     if (AIMoveController.Debug_path_timeOut)
                         obj.printDebugMsg("[注意!]move Time Is Over");
-                    obj.getSM().handleMessage(new StateMsg((int)AIMsg.moveTimeIsOver));
+                    obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveTimeIsOver,null));
                     return;
                 }
                 else
@@ -614,7 +466,7 @@ public class AIMoveController : MonoBehaviour
             }
         }
 
-        public override void onMessage(AIMoveController obj, StateMsg msg)
+        public override void onMessage(AIMoveController obj, StateMsg<AIMoveController> msg)
         {
             AIMsg type = (AIMsg)msg.type;
             switch (type)
@@ -630,8 +482,7 @@ public class AIMoveController : MonoBehaviour
                     obj.getSM().changeState(AICatchByTrapState.Instance());
                     break;
                 case AIMsg.waitForSomebody:
-
-                    AIMoveController ai = (AIMoveController)msg.obj;
+                    AIMoveController ai = (AIMoveController)msg.sender;
                     obj.setWaitThisAI(ai);
                     obj.getSM().changeState(AIWaitState.Instance());
                     break;
@@ -683,10 +534,10 @@ public class AIMoveController : MonoBehaviour
         {
             obj.showNowState("Catch By Trap");
             if (obj.inTrapTimeIsOver())
-                obj.getSM().handleMessage(new StateMsg((int)AIMsg.moveFromTrap));
+                obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveFromTrap,null));
         }
 
-        public override void onMessage(AIMoveController obj, StateMsg msg)
+        public override void onMessage(AIMoveController obj, StateMsg<AIMoveController> msg)
         {
             AIMsg type = (AIMsg)msg.type;
             switch (type)
@@ -711,7 +562,7 @@ public class AIMoveController : MonoBehaviour
 
         public override void enter(AIMoveController obj)
         {
-            obj.movable.getSM().handleMessage(new StateMsg((int)MovableMsg.toKinematic));
+            obj.movable.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.toKinematic,null));
             bool playerOnTop = obj.enterMoveFromTrap();
         }
 
@@ -720,16 +571,16 @@ public class AIMoveController : MonoBehaviour
             obj.showNowState("Move From Trap (" + obj.getMoveCommand().ToString() + ")");
             obj.moveFromTrap();
             if (obj.isFinishMoveFromTrap())
-                obj.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
+                obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
         }
 
-        public override void onMessage(AIMoveController obj, StateMsg msg)
+        public override void onMessage(AIMoveController obj, StateMsg<AIMoveController> msg)
         {
             AIMsg type = (AIMsg)msg.type;
             switch (type)
             {
                 case AIMsg.reFindPath:
-                    obj.movable.getSM().handleMessage(new StateMsg((int)MovableMsg.breakKinematic));
+                    obj.movable.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.breakKinematic,null));
                     obj.getSM().changeState(AIFindingPathState.Instance());
                     break;
                 case AIMsg.catchPlayer:

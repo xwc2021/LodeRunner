@@ -24,7 +24,7 @@ public class Trap : MonoBehaviour {
 
         if (catchAI != null)
         {
-            catchAI.getSM().handleMessage(new StateMsg((int)AIMsg.catchByTrap));
+            catchAI.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.catchByTrap,null));
         }
     }
 

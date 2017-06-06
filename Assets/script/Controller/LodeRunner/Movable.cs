@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public enum MoveCommand { stop, left, right, up, down,wait }
+public enum MoveCommand { stop, left, right, up, down,wait,airMove }
 public class Movable : MonoBehaviour {
 
     //參數
@@ -13,6 +13,7 @@ public class Movable : MonoBehaviour {
     static bool Debug_do_moveUp = false;
     static bool Debug_adjustY = false;
     static bool Debug_fall_to_align_rope = false;
+    static bool Debug_Oncoming = true;//迎面而來
 
     //               --
     //   offset     |  |    <--
@@ -36,10 +37,27 @@ public class Movable : MonoBehaviour {
     bool asjustXWhenOnAir =true;
     public void setAdjustXWhenOnAir(bool b) { asjustXWhenOnAir = b; }
     bool getAdjustXWhenOnAir() { return asjustXWhenOnAir; }
+
+    class DefferedMsg
+    {
+        public MovableMsg type;
+        public Vector2 diff;
+        public DefferedMsg(MovableMsg pType, Vector2 pDiff)
+        {
+            type = pType;
+            diff = pDiff;
+        }
+    }
+
+    DefferedMsg defferedMsg;
+
+    public AIMoveController myAI;
     void Awake()
     {
         AIMask = LayerMask.GetMask("AI");
         sm = new StateMachine<Movable>(this, OnAirState.Instance());
+
+        myAI = GetComponent<AIMoveController>();
     }
 
     static float rigidHalfWidth=0.4f;//設為0.5的話，會找到上面的tile
@@ -195,7 +213,7 @@ public class Movable : MonoBehaviour {
 
                         if (Movable.Debug_fall_to_align_rope)
                             Debug.Log(name + ":fall To Align Rope Case [注意!] ");
-                        getSM().handleMessage(new StateMsg((int)MovableMsg.fallToAlignRope));
+                        getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.fallToAlignRope,null));
                     }
                     break;
 
@@ -207,7 +225,7 @@ public class Movable : MonoBehaviour {
                         if (sm != null)
                         {
                             Debug.Log("cancel FadeOut");
-                            sm.handleMessage(new StateMsg((int)BrickMsg.chancelFadeOut));
+                            sm.handleMessage(new StateMsg<Brick>((int)BrickMsg.chancelFadeOut,null));
                         }
                     }
                     break;
@@ -233,6 +251,8 @@ public class Movable : MonoBehaviour {
     public string nowState;//for debug
     public void UpdateMove(int mask)
     {
+        handleDeferedMessage();
+
         if (!checkIsOnLadderOrRopeTile())
         {
             checkFootArea(mask);
@@ -311,28 +331,28 @@ public class Movable : MonoBehaviour {
             Debug.Log(name+":對齊高度 "+newY);
     }
 
-    public void sendMsgOnLadder(){sm.handleMessage(new StateMsg((int)MovableMsg.onLabber));}
-    public void sendMsgOnRope(){sm.handleMessage(new StateMsg((int)MovableMsg.onRope));}
-    public void sendMsgToNormal(){sm.handleMessage(new StateMsg((int)MovableMsg.toNormal));}
-    public void sendMsgLanding(){sm.handleMessage(new StateMsg((int)MovableMsg.landing));}
-    public void sendMsgOnAir() { sm.handleMessage(new StateMsg((int)MovableMsg.onAir)); }
+    public void sendMsgOnLadder(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onLabber,null));}
+    public void sendMsgOnRope(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onRope, null));}
+    public void sendMsgToNormal(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.toNormal, null));}
+    public void sendMsgLanding(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.landing, null));}
+    public void sendMsgOnAir() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onAir, null)); }
 
-    public void sendMsgMoveLeft() { sm.handleMessage(new StateMsg((int)MovableMsg.moveLeft)); }
-    public void sendMsgMoveLeft(MonoBehaviour sender) { sm.handleMessage(new StateMsg((int)MovableMsg.moveLeft, sender)); }
+    public void sendMsgMoveLeft() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveLeft, null)); }
+    public void sendMsgMoveLeft(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveLeft, sender)); }
 
-    public void sendMsgMoveRight() { sm.handleMessage(new StateMsg((int)MovableMsg.moveRight)); }
-    public void sendMsgMoveRight(MonoBehaviour sender) { sm.handleMessage(new StateMsg((int)MovableMsg.moveRight, sender)); }
+    public void sendMsgMoveRight() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveRight,null)); }
+    public void sendMsgMoveRight(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveRight, sender)); }
 
-    public void sendMsgMoveUp() { sm.handleMessage(new StateMsg((int)MovableMsg.moveUp)); }
-    public void sendMsgMoveUp(MonoBehaviour sender) { sm.handleMessage(new StateMsg((int)MovableMsg.moveUp, sender)); }
+    public void sendMsgMoveUp() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveUp,null)); }
+    public void sendMsgMoveUp(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveUp, sender)); }
 
-    public void sendMsgMoveDown() { sm.handleMessage(new StateMsg((int)MovableMsg.moveDown)); }
-    public void sendMsgMoveDown(MonoBehaviour sender) { sm.handleMessage(new StateMsg((int)MovableMsg.moveDown, sender)); }
+    public void sendMsgMoveDown() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveDown,null)); }
+    public void sendMsgMoveDown(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveDown, sender)); }
 
-    public void sendMsgStopMove() { sm.handleMessage(new StateMsg((int)MovableMsg.stopMove)); }
-    public void sendMsgWait() { sm.handleMessage(new StateMsg((int)MovableMsg.wait)); }
+    public void sendMsgStopMove() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.stopMove,null)); }
+    public void sendMsgWait() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.wait,null)); }
 
-    MoveCommand moveCommand = MoveCommand.stop;
+    public MoveCommand moveCommand = MoveCommand.stop;
     public MoveCommand getMoveCommand() { return moveCommand; }
 
     void doMoveRight()
@@ -357,6 +377,9 @@ public class Movable : MonoBehaviour {
 
     void doMoveDown()
     {
+        if (name == "卡")
+            print("here");
+
         moveCommand = MoveCommand.down;
         rigid.velocity = new Vector2(0, -velocity);
     }
@@ -375,6 +398,7 @@ public class Movable : MonoBehaviour {
 
     void doOnAirMove()
     {
+        moveCommand = MoveCommand.airMove;
         rigid.velocity = new Vector2(0, -onAirVelocity);
     }
 
@@ -458,7 +482,9 @@ public class Movable : MonoBehaviour {
                 || other.getMoveCommand() == MoveCommand.down
                 || other.getMoveCommand() == MoveCommand.left
                 || other.getMoveCommand() == MoveCommand.right
-                || other.getMoveCommand() == MoveCommand.stop;
+                || other.getMoveCommand() == MoveCommand.stop
+                || other.getMoveCommand() == MoveCommand.wait;
+  
             if (fitCommand)
                 doStopMove();
             else
@@ -503,6 +529,235 @@ public class Movable : MonoBehaviour {
         return touchZone;
     }
 
+    delegate void funPtr(Movable sender);
+    void handleTooClose(AIMoveController ai, funPtr doFunction)
+    {
+        //迎面而來的情況 => <=
+        //比較距離，近者勝出；距離一樣，先搶先贏
+        Vector2 v1 = transform.position - myAI.getNowTarget().getPosition();
+        Vector2 v2 = ai.transform.position - myAI.getNowTarget().getPosition();
+        float myD = v1.sqrMagnitude;
+        float d = v2.sqrMagnitude;
+
+        if (myD < d)
+        {
+            if (Debug_Oncoming)
+                printDebugMsg("我比" + ai.name + "近");
+
+            doFunction(this);
+        }
+        else if (myD > d)
+        {
+            if (Debug_Oncoming)
+                printDebugMsg("我比[" + ai.name + "]遠他的行動(" + ai.movable.getMoveCommand().ToString() + ")");
+
+            myAI.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.waitForSomebody, ai));
+        }
+        else //看來是平手了
+        {
+            if (Debug_Oncoming)
+                printDebugMsg(ai.name + "等我 ("+myD+","+d+")");
+            ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.waitForSomebody, myAI));
+            doFunction(this);
+        }
+    }
+
+    AIMoveController tooCloseDetect(Vector2 leftUp, Vector2 rightUp, Vector2 leftDown, Vector2 rightDown)
+    {
+        Collider2D touchZone = this.tooCloseDetect(leftUp, rightUp, leftDown, rightDown, AIMask);
+
+        if (touchZone != null)
+            return touchZone.GetComponent<AIMoveController>();
+        else
+            return null;
+    }
+
+    void preMove(Vector2 dir)
+    {
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        {
+            //左右移動
+            if (dir.x > 0)
+            {
+                AIMoveController ai = tooCloseDetect(
+                    new Vector2(Movable.tooCloseOffset, Movable.tooCloseHalfLongSide),
+                    new Vector2(Movable.tooCloseOffset + Movable.tooCloseShortSide, Movable.tooCloseHalfLongSide),
+                    new Vector2(Movable.tooCloseOffset, -Movable.tooCloseHalfLongSide),
+                    new Vector2(Movable.tooCloseOffset + Movable.tooCloseShortSide, -Movable.tooCloseHalfLongSide)
+                    );
+                if (ai != null)
+                {
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
+                    bool fitCommand = ai.getMoveCommand() == MoveCommand.right
+                        || ai.getMoveCommand() == MoveCommand.up
+                        || ai.getMoveCommand() == MoveCommand.down
+                    || (ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);         
+
+                    bool stopSituation = fitCommand || aiOnAir || aiWaitButNotForMe;
+                    if (stopSituation)
+                        this.sendMsgStopMove();
+                    else
+                        handleTooClose(ai, this.sendMsgMoveRight);
+                }
+                else
+                    this.sendMsgMoveRight();
+            }
+            else if (dir.x < 0)
+            {
+                AIMoveController ai = tooCloseDetect(
+                    new Vector2(-Movable.tooCloseOffset, Movable.tooCloseHalfLongSide),
+                    new Vector2(-Movable.tooCloseOffset - Movable.tooCloseShortSide, Movable.tooCloseHalfLongSide),
+                    new Vector2(-Movable.tooCloseOffset, -Movable.tooCloseHalfLongSide),
+                    new Vector2(-Movable.tooCloseOffset - Movable.tooCloseShortSide, -Movable.tooCloseHalfLongSide)
+                    );
+                if (ai != null)
+                {
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
+                    bool fitCommand = ai.getMoveCommand() == MoveCommand.left
+                        || ai.getMoveCommand() == MoveCommand.up
+                        || ai.getMoveCommand() == MoveCommand.down
+                    || (ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
+                    bool stopSituation = fitCommand || aiOnAir || aiWaitButNotForMe;
+                    if (stopSituation)
+                        this.sendMsgStopMove();
+                    else
+                        handleTooClose(ai, this.sendMsgMoveLeft);
+                }
+                else
+                    this.sendMsgMoveLeft();
+            }
+        }
+        else
+        {
+            //上下移動
+            if (dir.y > 0)
+            {
+                AIMoveController ai = tooCloseDetect(new Vector2(-Movable.tooCloseHalfLongSide, Movable.tooCloseOffset + Movable.tooCloseShortSide),
+                    new Vector2(Movable.tooCloseHalfLongSide, Movable.tooCloseOffset + Movable.tooCloseShortSide),
+                    new Vector2(-Movable.tooCloseHalfLongSide, Movable.tooCloseOffset),
+                    new Vector2(Movable.tooCloseHalfLongSide, Movable.tooCloseOffset)
+                    );
+                if (ai != null)
+                {
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+
+                    bool fitCommand = ai.getMoveCommand() == MoveCommand.up
+                        || ai.getMoveCommand() == MoveCommand.left
+                        || ai.getMoveCommand() == MoveCommand.right;
+
+                    //LodeRunnerScreenshot\fixed\互等的情況.jpg
+                    //爬梯子往上，碰到上面的AI是stop時，自己才要stop         
+                    bool aiStopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();
+
+                    bool stopSituation = fitCommand || aiWaitButNotForMe || aiStopAndOnLadder;
+
+                    if (Debug_Oncoming)
+                    {
+                        if (aiStopAndOnLadder)
+                            printDebugMsg("[注意]aiStopAndOnLadder");
+                        else
+                            printDebugMsg("[注意]aiStop but not OnLadder");
+                    }
+
+                    if (stopSituation)
+                        this.sendMsgStopMove();
+                    else
+                    {
+                        //如果對方正往下落，就還是往上
+                        bool aiIsFallToTarget = ai.movable.getSM().getCurrentState() == Movable.FallToTargetState.Instance();
+                        if(aiIsFallToTarget)
+                            this.sendMsgMoveUp(this);
+                        else
+                        handleTooClose(ai, this.sendMsgMoveUp);
+                    }    
+                }
+                else
+                    this.sendMsgMoveUp(this);
+            }
+            else if (dir.y < 0)
+            {
+                AIMoveController ai = tooCloseDetect(new Vector2(-Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset - Movable.tooCloseShortSide),
+                    new Vector2(Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset - Movable.tooCloseShortSide),
+                    new Vector2(-Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset),
+                    new Vector2(Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset)
+                    );
+                if (ai != null)
+                {
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool fitCommand = ai.getMoveCommand() == MoveCommand.down
+                        || ai.getMoveCommand() == MoveCommand.left
+                        || ai.getMoveCommand() == MoveCommand.right
+                        || ai.getMoveCommand() == MoveCommand.stop;
+                    bool stopSituation = fitCommand || aiWaitButNotForMe;
+
+                    if (stopSituation)
+                        this.sendMsgStopMove();
+                    else
+                        handleTooClose(ai, this.sendMsgMoveDown);
+                }
+                else
+                    this.sendMsgMoveDown();
+            }
+        }
+    }
+
+    void pushDeferredMessage(DefferedMsg msg)
+    {
+        defferedMsg = msg;
+    }
+
+    void clearDefferedMsg()
+    {
+        defferedMsg = null;
+    }
+
+    void handleDeferedMessage()
+    {
+        if (defferedMsg != null)
+        {
+
+            switch (defferedMsg.type)
+            {
+                case MovableMsg.moveLeft:
+                    sendMsgMoveLeft();
+                    break;
+                case MovableMsg.moveRight:
+                    sendMsgMoveRight();
+                    break;
+                case MovableMsg.moveUp:
+                    sendMsgMoveUp();
+                    break;
+                case MovableMsg.moveDown:
+                    sendMsgMoveDown();
+                    break;
+                case MovableMsg.stopMove:
+                    sendMsgStopMove();
+                    break;
+                case MovableMsg.preMove:
+                    if (myAI != null && myAI.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance())
+                        return;
+
+                    preMove(defferedMsg.diff);
+                    break;
+            }
+        }
+    }
+
+    public void DefferedMove(Vector2 diff)
+    {
+        pushDeferredMessage(new DefferedMsg(MovableMsg.preMove, diff));
+    }
+
+    public void DefferedMoveLeft(){pushDeferredMessage(new DefferedMsg(MovableMsg.moveLeft, Vector2.zero));}
+    public void DefferedMoveRight() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveRight, Vector2.zero)); }
+    public void DefferedMoveUp() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveUp, Vector2.zero)); }
+    public void DefferedMoveDown() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveDown, Vector2.zero)); }
+    public void DefferedStop() { pushDeferredMessage(new DefferedMsg(MovableMsg.stopMove, Vector2.zero)); }
+
     public class OnLabberState : State<Movable>
     {
         private OnLabberState() { }
@@ -518,6 +773,7 @@ public class Movable : MonoBehaviour {
             if (Movable.Debug_enter_state)
                 obj.printDebugMsg("Labber");
 
+            ////failToTarget才可以停住
             obj.doStopMove();
         }
         public override void exit(Movable obj) { }
@@ -526,7 +782,7 @@ public class Movable : MonoBehaviour {
             obj.showNowState("OnLabber ("+obj.getMoveCommand().ToString()+")");
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -583,14 +839,14 @@ public class Movable : MonoBehaviour {
             {
                 obj.adjustY();
                 if (obj.getIsJumpFromRope())
-                    obj.getSM().handleMessage(new StateMsg((int)MovableMsg.jumpFromRope));
+                    obj.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.jumpFromRope,null));
                 else
-                    obj.getSM().handleMessage(new StateMsg((int)MovableMsg.fallToAlignRopeFinish));
+                    obj.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.fallToAlignRopeFinish,null));
             }
 
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -620,6 +876,7 @@ public class Movable : MonoBehaviour {
             if (Movable.Debug_enter_state)
                 obj.printDebugMsg("On Rope");
 
+            //failToTarget才可以停住
             obj.doStopMove();
 
             bool fromLadder = obj.getSM().getPreviousState() == OnLabberState.Instance();
@@ -636,7 +893,7 @@ public class Movable : MonoBehaviour {
             obj.showNowState("On Rope State (" + obj.getMoveCommand().ToString() + ")");
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -680,8 +937,8 @@ public class Movable : MonoBehaviour {
                         //  --
                         if (Movable.Debug_do_moveUp)
                             obj.printDebugMsg("[注意!]do MoveUp on rope");
-                        AIMoveController ai = (AIMoveController)msg.sender;
-                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
+                        AIMoveController ai = msg.sender.myAI;
+                        ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
                     }
                     break;
             }
@@ -718,7 +975,7 @@ public class Movable : MonoBehaviour {
             obj.doOnAirMove();
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -758,6 +1015,7 @@ public class Movable : MonoBehaviour {
             if (Movable.Debug_enter_state)
                 obj.printDebugMsg("Normal");
 
+            //可以從onAir進來
             obj.doStopMove();
 
             //修正AI踩到AI就瞬移的問題
@@ -775,7 +1033,7 @@ public class Movable : MonoBehaviour {
             obj.showNowState("Normal Stater(" + obj.getMoveCommand().ToString() + ")");
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -831,8 +1089,8 @@ public class Movable : MonoBehaviour {
                         //降落在Brick、Stone、ladder時觸發
                         if (Movable.Debug_do_moveUp)
                             obj.printDebugMsg("[注意!]do MoveUp on Normal");
-                        AIMoveController ai = (AIMoveController)msg.sender;
-                        ai.getSM().handleMessage(new StateMsg((int)AIMsg.reFindPath));
+                        AIMoveController ai = msg.sender.myAI;
+                        ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
                     }
                     break;
             }
@@ -868,7 +1126,7 @@ public class Movable : MonoBehaviour {
             obj.showNowState("Kinematic State");
         }
 
-        public override void onMessage(Movable obj, StateMsg msg)
+        public override void onMessage(Movable obj, StateMsg<Movable> msg)
         {
             MovableMsg type = (MovableMsg)msg.type;
             switch (type)
@@ -896,6 +1154,5 @@ public class Movable : MonoBehaviour {
     }
 }
 
-enum MovableMsg {onAir, landing, onLabber,onRope,toNormal,moveLeft,moveRight,moveUp,moveDown,stopMove,jumpFromRope, toKinematic, breakKinematic, fallToAlignRope, fallToAlignRopeFinish,wait }
-
+enum MovableMsg {preMove,onAir, landing, onLabber,onRope,toNormal,moveLeft,moveRight,moveUp,moveDown,stopMove,jumpFromRope, toKinematic, breakKinematic, fallToAlignRope, fallToAlignRopeFinish,wait }
 

@@ -31,7 +31,7 @@ public class Brick : MonoBehaviour
         if (sm == null)
             sm = new StateMachine<Brick>(this, BrickNormalState.Instance());
 
-        sm.handleMessage(new StateMsg((int)BrickMsg.becomeTrap));
+        sm.handleMessage(new StateMsg<Brick>((int)BrickMsg.becomeTrap, null));
     }
 
     public void setNone()
@@ -113,7 +113,7 @@ public class BrickNormalState : State<Brick>
        
     }
 
-    public override void onMessage(Brick obj,StateMsg msg)
+    public override void onMessage(Brick obj,StateMsg<Brick> msg)
     {
         BrickMsg type = (BrickMsg)msg.type;
         switch (type)
@@ -146,10 +146,10 @@ public class BrickFadeOutState : State<Brick>
     public override void execute(Brick obj)
     {
         if (obj.isFadeOutFinish())
-            obj.getSM().handleMessage(new StateMsg((int)BrickMsg.fadeOutOk));
+            obj.getSM().handleMessage(new StateMsg<Brick>((int)BrickMsg.fadeOutOk,null));
     }
 
-    public override void onMessage(Brick obj, StateMsg msg)
+    public override void onMessage(Brick obj, StateMsg<Brick> msg)
     {
         BrickMsg type = (BrickMsg)msg.type;
         switch (type)
@@ -184,10 +184,10 @@ public class BrickTrapState : State<Brick>
     public override void execute(Brick obj)
     {
         if (obj.isTrapTimeFinish())
-            obj.getSM().handleMessage(new StateMsg((int)BrickMsg.trapIsOver));
+            obj.getSM().handleMessage(new StateMsg<Brick>((int)BrickMsg.trapIsOver,null));
     }
 
-    public override void onMessage(Brick obj, StateMsg msg)
+    public override void onMessage(Brick obj, StateMsg<Brick> msg)
     {
         BrickMsg type = (BrickMsg)msg.type;
         switch (type)
@@ -216,10 +216,10 @@ public class BrickFadeInState : State<Brick>
     public override void execute(Brick obj)
     {
         if (obj.isFadeInFinish())
-            obj.getSM().handleMessage(new StateMsg((int)BrickMsg.fadeInOk));
+            obj.getSM().handleMessage(new StateMsg<Brick>((int)BrickMsg.fadeInOk,null));
     }
 
-    public override void onMessage(Brick obj, StateMsg msg)
+    public override void onMessage(Brick obj, StateMsg<Brick> msg)
     {
         BrickMsg type = (BrickMsg)msg.type;
         switch (type)
