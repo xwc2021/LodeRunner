@@ -37,6 +37,9 @@ public class AIMoveController : MonoBehaviour
         float myD = v1.sqrMagnitude;
         float d = v2.sqrMagnitude;
 
+        if (name == "A")
+            print((myD < d) + "," + (myD > d));
+
         if (myD < d)
         {
             if (Debug_Oncoming)
@@ -183,8 +186,8 @@ public class AIMoveController : MonoBehaviour
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe ;
                     if (stopMoveSituation)
                         movable.sendMsgStopMove();
-
-                    handleTooClose(ai, movable.sendMsgMoveRight);
+                    else
+                        handleTooClose(ai, movable.sendMsgMoveRight);
                 }
                 else
                     movable.sendMsgMoveRight();
@@ -209,8 +212,8 @@ public class AIMoveController : MonoBehaviour
                     bool stopMoveSituation = fitCommand || aiOnAir || aiWaitButNotForMe  ;
                     if (stopMoveSituation)
                         movable.sendMsgStopMove();
-
-                    handleTooClose(ai, movable.sendMsgMoveLeft);
+                    else
+                        handleTooClose(ai, movable.sendMsgMoveLeft);
                 }
                 else
                     movable.sendMsgMoveLeft();
@@ -250,8 +253,8 @@ public class AIMoveController : MonoBehaviour
 
                     if (stopMoveSituation)
                         movable.sendMsgStopMove();
-
-                    handleTooClose(ai, movable.sendMsgMoveUp);
+                    else
+                        handleTooClose(ai, movable.sendMsgMoveUp);
                 }
                 else
                     movable.sendMsgMoveUp(this);
@@ -274,8 +277,8 @@ public class AIMoveController : MonoBehaviour
 
                     if (stopMoveSituation)
                         movable.sendMsgStopMove();   
-
-                    handleTooClose(ai, movable.sendMsgMoveDown);
+                    else
+                        handleTooClose(ai, movable.sendMsgMoveDown);
                 }
                 else 
                     movable.sendMsgMoveDown();
@@ -403,11 +406,13 @@ public class AIMoveController : MonoBehaviour
         footMask = LayerMask.GetMask("FootCanTouch", "aiFootCanTouch", "AI");
         AIMask = LayerMask.GetMask("AI");
     }
-	
-	// Update is called once per frame
-	void FixedUpdate () {
+
+    // Update is called once per frame
+    public string nowState;// for debug
+    void FixedUpdate () {
 
         sm.execute();
+        nowState = sm.getCurrentState().ToString();
 
         movable.UpdateMove(footMask);
     }
