@@ -71,11 +71,12 @@ public class Movable : MonoBehaviour {
             onRope =graphBuilder.isRope((int)index.x, (int)index.y);
             if (onRope)
             {
-                Vector2 tileCenterPos = graphBuilder.getTileCenterPositionInWorld((int)index.x, (int)index.y);
+                //下面的情況，其實是因之前的bug靠成的，如果movalbe有stop就不會發生推擠..
 
+                //Vector2 tileCenterPos = graphBuilder.getTileCenterPositionInWorld((int)index.x, (int)index.y);
                 //這種清況也要排除：\LodeRunnerScreenshot\fixed\checkIsOnLadderOrRopeTile.png
-                if (tileCenterPos.y - transform.position.y > 0.5f)//繩子在movalbe上面
-                    continue;
+                //if (tileCenterPos.y - transform.position.y > 0.5f)//繩子在movalbe上面
+                //    continue;
 
                 break;
             }
@@ -229,6 +230,7 @@ public class Movable : MonoBehaviour {
         }
     }
 
+    public string nowState;//for debug
     public void UpdateMove(int mask)
     {
         if (!checkIsOnLadderOrRopeTile())
@@ -237,6 +239,7 @@ public class Movable : MonoBehaviour {
         }
         
         sm.execute();
+        nowState = sm.getCurrentState().ToString();
     }
 
     bool nowTileIsBrick()//因為可能被玩家消去，所以不能只判斷tileValue
