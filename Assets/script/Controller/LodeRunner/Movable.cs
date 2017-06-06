@@ -70,7 +70,15 @@ public class Movable : MonoBehaviour {
         {
             onRope =graphBuilder.isRope((int)index.x, (int)index.y);
             if (onRope)
+            {
+                Vector2 tileCenterPos = graphBuilder.getTileCenterPositionInWorld((int)index.x, (int)index.y);
+
+                //這種清況也要排除：\LodeRunnerScreenshot\fixed\checkIsOnLadderOrRopeTile.png
+                if (tileCenterPos.y - transform.position.y > 0.5f)//繩子在movalbe上面
+                    continue;
+
                 break;
+            }
         }
 
         bool onLadder = false;
