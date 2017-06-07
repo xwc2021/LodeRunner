@@ -8,6 +8,7 @@ public class AIMoveController : MonoBehaviour
     //參數
     static float waitTime = 0.6f;
     static float movingTime = 2;
+    static float maxMovingTime = 4;//超過這個時間還沒到fixedPoint就強制切換到reFindPath
     static float inTrapTime = 1.5f;
     static bool Debug_path_timeOut = false;
     static bool Debug_AI_wait = false;
@@ -204,9 +205,6 @@ public class AIMoveController : MonoBehaviour
     public GraphNode getNowTarget() { return nowTarget; }
     bool moveByPath()//return isFinish
     {
-        if (nowPathIndex == pathList.Count)//到了
-            return true;
-
         nowTarget =pathList[nowPathIndex];
         
         Vector2 diff = nowTarget.getPosition() - transform.position;
@@ -264,6 +262,11 @@ public class AIMoveController : MonoBehaviour
     void increaseClockTime()
     {
         accumulationTime += Time.deltaTime;
+    }
+
+    bool MoveTimeIsOverMaxLimit()
+    {
+        return accumulationTime >= maxMovingTime;
     }
 
     bool MoveTimeIsOver()
@@ -434,6 +437,16 @@ public class AIMoveController : MonoBehaviour
                 {
                     if (AIMoveController.Debug_path_timeOut)
                         obj.printDebugMsg("[注意!]wait to target path node " + obj.getNowTarget().nodeKey);
+
+                    //有可能發生這種永遠到不了fixPoint的清況
+                    //LodeRunnerScreenshot\fixed\never_to_FixPoint.png
+                    if (obj.MoveTimeIsOverMaxLimit())
+                    {
+                        if (AIMoveController.Debug_path_timeOut)
+                            obj.printDebugMsg("[強制切換]to AIFindingPathState");
+                        obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveTimeIsOver, null));
+                    }
+
                 }
                 else
                 {
