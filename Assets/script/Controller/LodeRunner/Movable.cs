@@ -236,11 +236,15 @@ public class Movable : MonoBehaviour {
 
                     //這種清況不算踩到
                     //see LodeRunnerScreenshot\fixed\another_onAir_condition.png
-
-                    Vector2 downTile = new Vector2(transform.position.x, transform.position.y - 1);
-                    bool isNull = graphBuilder.isNull((int)downTile.x, (int)downTile.y);//下面是空氣嗎？
+                    //重構程式碼後，目前已經不會發生上面的清況了
+                    //所以下面的判定之後可以拿掉了
+                    bool isNull = downTileIsNull();//下面是空氣嗎？
                     if (isNull && Mathf.Abs(dis.y) < 1.0f && Mathf.Abs(dis.x)>0.8f)
+                    {
+                        print("「不算踩到」:" + name);
                         sendMsgOnAir();
+                    }
+                        
                     break;   
             }
         
@@ -309,6 +313,12 @@ public class Movable : MonoBehaviour {
         Vector2 right = graphBuilder.getTileIndex(transform.position + new Vector3(Movable.rigidHalfWidth, 0, 0));
         bool rightIsRope = graphBuilder.isRope((int)right.x, (int)right.y - 1);
         return leftIsRope || rightIsRope;
+    }
+
+    bool downTileIsNull()
+    {
+        Vector2 now = graphBuilder.getTileIndex(transform.position);
+        return graphBuilder.isNull((int)now.x, (int)now.y - 1);
     }
 
     void adjustX()
