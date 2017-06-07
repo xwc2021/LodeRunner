@@ -492,7 +492,7 @@ public class AIMoveController : MonoBehaviour
         }
     }
 
-    class AICatchByTrapState : State<AIMoveController>
+    public class AICatchByTrapState : State<AIMoveController>
     {
         private AICatchByTrapState() { }
         static AICatchByTrapState instance;

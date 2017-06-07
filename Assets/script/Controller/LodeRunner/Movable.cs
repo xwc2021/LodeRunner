@@ -735,7 +735,12 @@ public class Movable : MonoBehaviour {
                     sendMsgStopMove();
                     break;
                 case MovableMsg.preMove:
-                    if (myAI != null && myAI.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance())
+
+                    bool excludeSituation = myAI != null
+                        && (myAI.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() ||
+                        myAI.getSM().getCurrentState() == AIMoveController.AICatchByTrapState.Instance());
+
+                    if (excludeSituation)
                         return;
 
                     preMove(defferedMsg.diff);
