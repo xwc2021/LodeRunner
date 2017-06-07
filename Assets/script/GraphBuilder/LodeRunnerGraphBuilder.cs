@@ -125,6 +125,12 @@ public class LodeRunnerGraphBuilder : MonoBehaviour {
         return (tile == TileMapValue.Rope);
     }
 
+    public bool isNull(int x, int y)
+    {
+        TileMapValue tile = (TileMapValue)tileData.getTileMapValue(x, y);
+        return (tile == TileMapValue.None);
+    }
+
     //是否為空
     bool isEmpty(int x, int y)
     {

@@ -236,7 +236,10 @@ public class Movable : MonoBehaviour {
 
                     //這種清況不算踩到
                     //see LodeRunnerScreenshot\fixed\another_onAir_condition.png
-                    if (Mathf.Abs(dis.y) < 1.0f && Mathf.Abs(dis.x)>0.8f)
+
+                    Vector2 downTile = new Vector2(transform.position.x, transform.position.y - 1);
+                    bool isNull = graphBuilder.isNull((int)downTile.x, (int)downTile.y);//下面是空氣嗎？
+                    if (isNull && Mathf.Abs(dis.y) < 1.0f && Mathf.Abs(dis.x)>0.8f)
                         sendMsgOnAir();
                     break;   
             }
