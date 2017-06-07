@@ -13,7 +13,7 @@ public class Movable : MonoBehaviour {
     static bool Debug_do_moveUp = false;
     static bool Debug_adjustY = false;
     static bool Debug_fall_to_align_rope = false;
-    static bool Debug_Oncoming = true;//迎面而來
+    static bool Debug_Oncoming = false;//迎面而來
 
     //               --
     //   offset     |  |    <--
@@ -377,9 +377,6 @@ public class Movable : MonoBehaviour {
 
     void doMoveDown()
     {
-        if (name == "卡")
-            print("here");
-
         moveCommand = MoveCommand.down;
         rigid.velocity = new Vector2(0, -velocity);
     }

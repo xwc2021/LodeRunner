@@ -10,7 +10,7 @@ public class AIMoveController : MonoBehaviour
     static float movingTime = 2;
     static float inTrapTime = 1.5f;
     static bool Debug_path_timeOut = false;
-    static bool Debug_AI_wait = true;
+    static bool Debug_AI_wait = false;
     
     static bool Debug_begin_move_but_notAligh = false;
 
@@ -57,11 +57,8 @@ public class AIMoveController : MonoBehaviour
             foreach (GraphNode node in pathList)
                 node.showNode(true);
 
-        if (pathList.Count > 1)//1個以上，就直接從第2個開始當目標
+        if (pathList.Count > 1)
         {
-            //[待辦]加入判斷
-            
-            
             GraphNode one = pathList[0];
             GraphNode two = pathList[1];
 
@@ -173,7 +170,6 @@ public class AIMoveController : MonoBehaviour
             return false;
     }
 
-    public bool movingToNode = false;
     void moveFromTrap()//return isFinish
     {
         if (nowPathIndex == pathFromTrap.Count)//到了
@@ -187,7 +183,6 @@ public class AIMoveController : MonoBehaviour
             movable.sendMsgStopMove();
             transform.position = nowTarget;
             nowPathIndex += 1;
-            movingToNode = false;
             return;
         }
         else
@@ -195,12 +190,7 @@ public class AIMoveController : MonoBehaviour
             Debug.DrawLine(nowTarget, transform.position, Color.red);
         }
 
-        if (!movingToNode)
-        {
-            movable.DefferedMove(diff);
-            movingToNode = true;
-        }
-
+        movable.DefferedMove(diff);       
     }
 
     bool isFinshMoveByPath()
@@ -212,10 +202,10 @@ public class AIMoveController : MonoBehaviour
 
     GraphNode nowTarget = null;
     public GraphNode getNowTarget() { return nowTarget; }
-    void moveByPath()//return isFinish
+    bool moveByPath()//return isFinish
     {
         if (nowPathIndex == pathList.Count)//到了
-            return;
+            return true;
 
         nowTarget =pathList[nowPathIndex];
         
@@ -229,12 +219,10 @@ public class AIMoveController : MonoBehaviour
             transform.position = nowTarget.getPosition();
 
             nowPathIndex += 1;
-            movingToNode = false;
 
             //這裡要再更新一次，不然fixedUpdate可能用到舊資料
-            diff = nowTarget.getPosition() - transform.position;
-            movable.DefferedMove(diff);
-            return;
+            movable.DefferedMove(Vector2.zero);
+            return true;
         }
         else
         {        
@@ -242,14 +230,8 @@ public class AIMoveController : MonoBehaviour
             showNowState("AI Move [" + getNowPathIndex() + "](" + nowTarget.nodeKey + ")");
         }
 
-        bool needPushCommand = movingToNode
-            && (movable.getMoveCommand() == MoveCommand.stop );
-
-        if (!movingToNode)
-        {
-            movable.DefferedMove(diff);
-            movingToNode = true;
-        }
+        movable.DefferedMove(diff);
+        return false;
     }
 
     int footMask;
@@ -434,14 +416,11 @@ public class AIMoveController : MonoBehaviour
         public override void exit(AIMoveController obj)
         {
             //obj.printDebugMsg("exit AIMoveState");
-            obj.movingToNode = false;
         }
 
         public override void execute(AIMoveController obj)
         {
-            obj.moveByPath();
-            if (obj.getSM().getCurrentState() != this)//moveByPath有可能觸發狀態的改變(由Movable通知)
-                return;
+            bool toFixPoint =obj.moveByPath();
 
             if (obj.isFinshMoveByPath())
             {
@@ -451,18 +430,18 @@ public class AIMoveController : MonoBehaviour
 
             if (obj.MoveTimeIsOver())
             {
-                if (obj.getMoveCommand() == MoveCommand.stop)
-                {
-                    if (AIMoveController.Debug_path_timeOut)
-                        obj.printDebugMsg("[注意!]move Time Is Over");
-                    obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveTimeIsOver,null));
-                    return;
-                }
-                else
+                if (!toFixPoint)
                 {
                     if (AIMoveController.Debug_path_timeOut)
                         obj.printDebugMsg("[注意!]wait to target path node " + obj.getNowTarget().nodeKey);
                 }
+                else
+                {
+                    if (AIMoveController.Debug_path_timeOut)
+                        obj.printDebugMsg("[即將切換]to AIFindingPathState");
+
+                    obj.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.moveTimeIsOver, null));
+                }           
             }
         }
 

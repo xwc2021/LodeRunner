@@ -16,38 +16,19 @@ public class UserMoveController : MonoBehaviour
         footMask = LayerMask.GetMask("FootCanTouch", "AI");
     }
 
-    bool doMoving=false;
     void Update()
     {
-        bool needPushCommand = doMoving
-            && movable.getMoveCommand() == MoveCommand.stop;
-        
-        if (!doMoving || needPushCommand)
-        {
-            if (Input.GetKey(KeyCode.A))
-            {
-                movable.DefferedMoveLeft();
-                doMoving = true;
-            }
+        if (Input.GetKey(KeyCode.A))
+            movable.DefferedMoveLeft();
 
-            if (Input.GetKey(KeyCode.D))
-            {
-                movable.DefferedMoveRight();
-                doMoving = true;
-            }
+        if (Input.GetKey(KeyCode.D))
+            movable.DefferedMoveRight();
 
-            if (Input.GetKey(KeyCode.W))
-            { 
-                movable.DefferedMoveUp();
-                doMoving = true;
-            }
+        if (Input.GetKey(KeyCode.W))
+            movable.DefferedMoveUp();
 
-            if (Input.GetKey(KeyCode.S))
-            { 
-                movable.DefferedMoveDown();
-                doMoving = true;
-            }
-        }
+        if (Input.GetKey(KeyCode.S))
+            movable.DefferedMoveDown();
 
         bool keyUp = Input.GetKeyUp(KeyCode.A)
             || Input.GetKeyUp(KeyCode.D)
@@ -56,7 +37,6 @@ public class UserMoveController : MonoBehaviour
 
         if (keyUp)
             movable.DefferedStop();
-       
        
         //挖洞
         if (Input.GetKeyDown(KeyCode.J))
