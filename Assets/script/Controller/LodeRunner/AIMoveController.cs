@@ -60,6 +60,9 @@ public class AIMoveController : MonoBehaviour
 
         if (pathList.Count > 1)
         {
+            nowPathIndex= 1;
+            //moveByPaht有加上一定要到達FixPoint的機制，下面的檢查就不需要了
+            /*
             GraphNode one = pathList[0];
             GraphNode two = pathList[1];
 
@@ -86,7 +89,7 @@ public class AIMoveController : MonoBehaviour
                 }
                 else
                     nowPathIndex = 1;
-            }
+            }*/
         }
         else
             nowPathIndex = 0;
