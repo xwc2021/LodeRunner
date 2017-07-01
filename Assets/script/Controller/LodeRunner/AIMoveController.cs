@@ -108,6 +108,11 @@ public class AIMoveController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
+            Movable mov=collision.gameObject.GetComponent<Movable>();
+            bool isOnAir =Movable.OnAirState.Instance()==mov.getSM().getCurrentState();
+            if (isOnAir)
+                return;
+            
             //Kinematic和Kinematic不會發生碰撞，但Kinematic和RigidBody會
             getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.catchPlayer,null));
         }

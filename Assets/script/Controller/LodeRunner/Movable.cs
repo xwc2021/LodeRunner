@@ -233,17 +233,6 @@ public class Movable : MonoBehaviour {
     
                 case "Monster":
                     Vector2 dis = transform.position - footTouchZone.gameObject.transform.position;
-
-                    //這種清況不算踩到
-                    //see LodeRunnerScreenshot\fixed\another_onAir_condition.png
-                    //重構程式碼後，目前已經不會發生上面的清況了
-                    //所以下面的判定之後可以拿掉了
-                    bool isNull = downTileIsNull();//下面是空氣嗎？
-                    if (isNull && Mathf.Abs(dis.y) < 1.0f && Mathf.Abs(dis.x)>0.8f)
-                    {
-                        print("「不算踩到」:" + name);
-                        sendMsgOnAir();
-                    }
                         
                     break;   
             }
