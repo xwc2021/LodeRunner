@@ -74,8 +74,9 @@ public class TileCreatorEditor : UnityEditor.Editor {
 
     public void doAdd(Vector3 mousePos)
     {
+        //Event.current.mousePosition是從左上角會(0,0)開始算
         mousePos.y = Camera.current.pixelHeight - mousePos.y;
-        mousePos.z = -Camera.current.transform.position.z;
+
         Vector3 worldPos = Camera.current.ScreenToWorldPoint(mousePos);
         Vector3 localPos = tileCreator.transform.InverseTransformPoint(worldPos);
 
