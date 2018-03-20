@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DiyAStar;
 
 public class GraphNode : MonoBehaviour, IGraphNode
 {
@@ -31,7 +32,7 @@ public class GraphNode : MonoBehaviour, IGraphNode
 
     public float getEvaluation(IGraphNode target)
     {
-        Vector3 temp = target.getPosition() - transform.position;
+        Vector3 temp = (target as GraphNode).getPosition() - transform.position;
         return Mathf.Abs(temp.x) + Mathf.Abs(temp.y);
     }
 

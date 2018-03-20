@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DiyAStar;
 
 
 public enum TileMapValue { None, Stone, Brick, Rope, Ladder, Player, Monster,Money,FakeBick, Destination }

@@ -533,8 +533,9 @@ public class Movable : MonoBehaviour {
     {
         //迎面而來的情況 => <=
         //比較距離，近者勝出；距離一樣，先搶先贏
-        Vector2 v1 = transform.position - myAI.getNowTarget().getPosition();
-        Vector2 v2 = ai.transform.position - myAI.getNowTarget().getPosition();
+        var myAInowTarget = (myAI.getNowTarget() as GraphNode);
+        Vector2 v1 = transform.position - myAInowTarget.getPosition();
+        Vector2 v2 = ai.transform.position - myAInowTarget.getPosition();
         float myD = v1.sqrMagnitude;
         float d = v2.sqrMagnitude;
 

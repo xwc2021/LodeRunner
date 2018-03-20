@@ -1,76 +1,80 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class AStarPathFinder
+namespace DiyAStar
 {
-    private PriorityQueue<IGraphNode> q;
-
-    public AStarPathFinder()
+    public class AStarPathFinder
     {
-        q = new PriorityQueue<IGraphNode>();
-    }
+        private PriorityQueue<IGraphNode> q;
 
-    public List<IGraphNode> findPath(IGraphNode from, IGraphNode destination)
-    {
-        //清空queue
-        q.clearAll();
-
-        //把from(設為已訪問)並放入queue
-        from.setAccumulationCost(0);
-
-        from.setVisited();
-        q.Add(from, 0);
-
-        bool findIt = false;
-        //在queue裡取出cost最小的node
-        //把node的edgeTarget(設為已訪問)並放queue
-        while (!q.isEmpty())
+        public AStarPathFinder()
         {
-            //印出來
-            //q.showPripriorityValue();
+            q = new PriorityQueue<IGraphNode>();
+        }
 
-            QueueElement<IGraphNode> element = q.popup();
-            IGraphNode node = element.obj;
+        public List<IGraphNode> findPath(IGraphNode from, IGraphNode destination)
+        {
+            //清空queue
+            q.clearAll();
 
-            if (node == destination)
+            //把from(設為已訪問)並放入queue
+            from.setAccumulationCost(0);
+
+            from.setVisited();
+            q.Add(from, 0);
+
+            bool findIt = false;
+            //在queue裡取出cost最小的node
+            //把node的edgeTarget(設為已訪問)並放queue
+            while (!q.isEmpty())
             {
-                findIt = true;
-                break;
-            }
+                //印出來
+                //q.showPripriorityValue();
 
-            int count = node.EdgeCount();
-            for (int i = 0; i < count; i++)
-            {
-                IGraphNode neighbor = node.GetEdge(i);
-                float edgeCost = node.GetEdgeCost(i);
+                QueueElement<IGraphNode> element = q.popup();
+                IGraphNode node = element.obj;
 
-                if (!neighbor.isVisited())//沒有訪問過的才加
+                if (node == destination)
                 {
-                    float evaluation = neighbor.getEvaluation(destination);
-                    float cost = node.getAccumulationCost() + edgeCost;
-                    neighbor.setAccumulationCost(cost);
+                    findIt = true;
+                    break;
+                }
 
-                    neighbor.setVisited();
-                    neighbor.setComeFrom(node);
-                    q.Add(neighbor, cost + evaluation);
+                int count = node.EdgeCount();
+                for (int i = 0; i < count; i++)
+                {
+                    IGraphNode neighbor = node.GetEdge(i);
+                    float edgeCost = node.GetEdgeCost(i);
+
+                    if (!neighbor.isVisited())//沒有訪問過的才加
+                    {
+                        float evaluation = neighbor.getEvaluation(destination);
+                        float cost = node.getAccumulationCost() + edgeCost;
+                        neighbor.setAccumulationCost(cost);
+
+                        neighbor.setVisited();
+                        neighbor.setComeFrom(node);
+                        q.Add(neighbor, cost + evaluation);
+                    }
                 }
             }
-        }
 
-        List<IGraphNode> list = new List<IGraphNode>();
-        if (findIt)
-        {
-            list.Add(destination);
-            IGraphNode ptr = destination.getComeFrom();
-            while (ptr != null)
+            List<IGraphNode> list = new List<IGraphNode>();
+            if (findIt)
             {
-                list.Add(ptr);
-                ptr = ptr.getComeFrom();
-            }
+                list.Add(destination);
+                IGraphNode ptr = destination.getComeFrom();
+                while (ptr != null)
+                {
+                    list.Add(ptr);
+                    ptr = ptr.getComeFrom();
+                }
 
-            list.Reverse();
+                list.Reverse();
+            }
+            return list;
         }
-        return list;
     }
 }
+
+
