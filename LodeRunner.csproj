@@ -300,10 +300,11 @@
     <Compile Include="Assets\script\Controller\LodeRunner\AIMoveController.cs" />
     <Compile Include="Assets\script\Controller\LodeRunner\Movable.cs" />
     <Compile Include="Assets\script\Controller\LodeRunner\UserMoveController.cs" />
-    <Compile Include="Assets\script\Graph\AStarPathFinder.cs" />
+    <Compile Include="Assets\script\Graph\AStar\AStarPathFinder.cs" />
+    <Compile Include="Assets\script\Graph\AStar\IGraphNode.cs" />
+    <Compile Include="Assets\script\Graph\AStar\PriorityQueue.cs" />
     <Compile Include="Assets\script\Graph\GraphMap.cs" />
     <Compile Include="Assets\script\Graph\GraphNode.cs" />
-    <Compile Include="Assets\script\Graph\PriorityQueue.cs" />
     <Compile Include="Assets\script\GraphBuilder\LodeRunnerGraphBuilder.cs" />
     <Compile Include="Assets\script\StateMachine.cs" />
     <Compile Include="Assets\script\Tile\TileCreator.cs" />

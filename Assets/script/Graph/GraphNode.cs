@@ -2,22 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public interface IGraphNode
-{
-    Vector3 getPosition();
-    void setVisited();
-    bool isVisited();
-    int EdgeCount();
-    IGraphNode GetEdge(int index);
-    float GetEdgeCost(int index);
-    float getEvaluation(IGraphNode target);
-    float getAccumulationCost();
-    void setAccumulationCost(float pCost);
-    void setComeFrom(IGraphNode node);
-    IGraphNode getComeFrom();
-    string getNodeKey();
-}
-
 public class GraphNode : MonoBehaviour, IGraphNode
 {
     public int EdgeCount() { return edgeTarget.Count; }
