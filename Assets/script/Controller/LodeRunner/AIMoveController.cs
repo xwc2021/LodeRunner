@@ -148,7 +148,7 @@ public class AIMoveController : MonoBehaviour
         {
             if (pathList.Count > 1)
             {
-                pathFromTrap.Add((pathList[1] as GraphNode ).getPosition());
+                pathFromTrap.Add(pathList[1].GetPosition());
             }
             else
             {
@@ -210,19 +210,19 @@ public class AIMoveController : MonoBehaviour
         else return false;
     }
 
-    GraphNode nowTarget = null;
-    public GraphNode getNowTarget() { return nowTarget; }
+    IGraphNode nowTarget = null;
+    public IGraphNode getNowTarget() { return nowTarget; }
     bool moveByPath()//return isFinish
     {
-        nowTarget =pathList[nowPathIndex] as GraphNode;
-        Vector2 diff = nowTarget.getPosition() - transform.position;
+        nowTarget =pathList[nowPathIndex];
+        Vector2 diff = nowTarget.GetPosition() - transform.position;
         //落到地面時可能不成立，因為GraphNode和角色的y有落差(落地觸發reFindPath)
         if (diff.sqrMagnitude < Movable.MoveEpsilon)//非常接近了，瞄準下個節點
         {
             showNowState("到達:"+nowTarget.getNodeKey());
 
             movable.sendMsgStopMove();
-            transform.position = nowTarget.getPosition();
+            transform.position = nowTarget.GetPosition();
 
             nowPathIndex += 1;
 
@@ -232,7 +232,7 @@ public class AIMoveController : MonoBehaviour
         }
         else
         {        
-            Debug.DrawLine(nowTarget.getPosition(), transform.position, Color.red);
+            Debug.DrawLine(nowTarget.GetPosition(), transform.position, Color.red);
             showNowState("AI Move [" + getNowPathIndex() + "](" + nowTarget.getNodeKey() + ")");
         }
 

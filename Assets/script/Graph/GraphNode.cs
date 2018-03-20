@@ -3,6 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using DiyAStar;
 
+public static class IGraphNodeExtensions
+{
+    public static Vector3 GetPosition(this IGraphNode target)
+    {
+        var node = target as GraphNode;
+        return node.getPosition();
+    }
+}
+
 public class GraphNode : MonoBehaviour, IGraphNode
 {
     public int EdgeCount() { return edgeTarget.Count; }
@@ -32,7 +41,7 @@ public class GraphNode : MonoBehaviour, IGraphNode
 
     public float getEvaluation(IGraphNode target)
     {
-        Vector3 temp = (target as GraphNode).getPosition() - transform.position;
+        Vector3 temp = target.GetPosition() - transform.position;
         return Mathf.Abs(temp.x) + Mathf.Abs(temp.y);
     }
 
