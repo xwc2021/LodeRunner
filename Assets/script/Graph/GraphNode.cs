@@ -2,8 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GraphNode : MonoBehaviour
+public interface IGraphNode
 {
+    Vector3 getPosition();
+    void setVisited();
+    bool isVisited();
+    int EdgeCount();
+    IGraphNode GetEdge(int index);
+    float GetEdgeCost(int index);
+    float getEvaluation(IGraphNode target);
+    float getAccumulationCost();
+    void setAccumulationCost(float pCost);
+    void setComeFrom(IGraphNode node);
+    IGraphNode getComeFrom();
+    string getNodeKey();
+}
+
+public class GraphNode : MonoBehaviour, IGraphNode
+{
+    public int EdgeCount() { return edgeTarget.Count; }
+    public IGraphNode GetEdge(int index) { return edgeTarget[index]; }
+    public float GetEdgeCost(int index) { return edgeCost[index]; }
+
+    public string getNodeKey() { return nodeKey; }
+
     //記錄圖的資訊
     public List<GraphNode> edgeTarget;
     public List<float> edgeCost;
@@ -13,19 +35,19 @@ public class GraphNode : MonoBehaviour
     //路徑資訊
     private bool visited;
     private float accumulationCost;
-    private GraphNode comeFrom;
+    private IGraphNode comeFrom;
 
-    public void setComeFrom(GraphNode node) { comeFrom = node; }
-    public GraphNode getComeFrom() { return comeFrom; }
+    public void setComeFrom(IGraphNode node) { comeFrom = node; }
+    public IGraphNode getComeFrom() { return comeFrom; }
 
     public bool isVisited() { return visited; }
     public void setVisited() { visited = true; }
     public float getAccumulationCost() { return accumulationCost; }
     public void setAccumulationCost(float pCost) { accumulationCost = pCost; }
 
-    public float getEvaluation(GraphNode target)
+    public float getEvaluation(IGraphNode target)
     {
-        Vector3 temp = target.transform.position - transform.position;
+        Vector3 temp = target.getPosition() - transform.position;
         return Mathf.Abs(temp.x) + Mathf.Abs(temp.y);
     }
 

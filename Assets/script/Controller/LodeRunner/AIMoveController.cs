@@ -22,7 +22,7 @@ public class AIMoveController : MonoBehaviour
 
     public float accumulationTime;
     StateMachine<AIMoveController> sm;
-    List<GraphNode> pathList = null;
+    List<IGraphNode> pathList = null;
     int nowPathIndex;
     int getNowPathIndex() { return nowPathIndex; }
 
@@ -209,8 +209,8 @@ public class AIMoveController : MonoBehaviour
         else return false;
     }
 
-    GraphNode nowTarget = null;
-    public GraphNode getNowTarget() { return nowTarget; }
+    IGraphNode nowTarget = null;
+    public IGraphNode getNowTarget() { return nowTarget; }
     bool moveByPath()//return isFinish
     {
         nowTarget =pathList[nowPathIndex];
@@ -219,7 +219,7 @@ public class AIMoveController : MonoBehaviour
         //落到地面時可能不成立，因為GraphNode和角色的y有落差(落地觸發reFindPath)
         if (diff.sqrMagnitude < Movable.MoveEpsilon)//非常接近了，瞄準下個節點
         {
-            showNowState("到達:"+nowTarget.nodeKey);
+            showNowState("到達:"+nowTarget.getNodeKey());
 
             movable.sendMsgStopMove();
             transform.position = nowTarget.getPosition();
@@ -233,7 +233,7 @@ public class AIMoveController : MonoBehaviour
         else
         {        
             Debug.DrawLine(nowTarget.getPosition(), transform.position, Color.red);
-            showNowState("AI Move [" + getNowPathIndex() + "](" + nowTarget.nodeKey + ")");
+            showNowState("AI Move [" + getNowPathIndex() + "](" + nowTarget.getNodeKey() + ")");
         }
 
         movable.DefferedMove(diff);
@@ -444,7 +444,7 @@ public class AIMoveController : MonoBehaviour
                 if (!toFixPoint)
                 {
                     if (AIMoveController.Debug_path_timeOut)
-                        obj.printDebugMsg("[注意!]wait to target path node " + obj.getNowTarget().nodeKey);
+                        obj.printDebugMsg("[注意!]wait to target path node " + obj.getNowTarget().getNodeKey());
 
                     //有可能發生這種永遠到不了fixPoint的清況
                     //LodeRunnerScreenshot\fixed\never_to_FixPoint.png
