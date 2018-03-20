@@ -45,8 +45,7 @@ public class GraphMap : MonoBehaviour {
         if (pathFinder == null)
             pathFinder = new AStarPathFinder();
 
-        foreach (GraphNode node in aliveNode)
-            node.resetPathInfo();
+        AStarPathFinder.resetIGraphNode(aliveNode.ToArray() );
         return pathFinder.findPath(from , destination );
     }
 
