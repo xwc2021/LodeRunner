@@ -293,6 +293,9 @@
     <Reference Include="UnityEngine.StandardEvents">
       <HintPath>C:/Users/xiang/AppData/LocalLow/Unity/cache/packages/packages.unity.com/com.unity.standardevents@1.0.10/UnityEngine.StandardEvents.dll</HintPath>
     </Reference>
+    <Reference Include="DiyAStar">
+      <HintPath>Assets/DiyAStar.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\prefab\TileElement\LodeRunner\Brick.cs" />
@@ -300,9 +303,6 @@
     <Compile Include="Assets\script\Controller\LodeRunner\AIMoveController.cs" />
     <Compile Include="Assets\script\Controller\LodeRunner\Movable.cs" />
     <Compile Include="Assets\script\Controller\LodeRunner\UserMoveController.cs" />
-    <Compile Include="Assets\script\Graph\AStar\AStarPathFinder.cs" />
-    <Compile Include="Assets\script\Graph\AStar\IGraphNode.cs" />
-    <Compile Include="Assets\script\Graph\AStar\PriorityQueue.cs" />
     <Compile Include="Assets\script\Graph\GraphMap.cs" />
     <Compile Include="Assets\script\Graph\GraphNode.cs" />
     <Compile Include="Assets\script\GraphBuilder\LodeRunnerGraphBuilder.cs" />
