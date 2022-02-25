@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
-
 public class UserMoveController : MonoBehaviour
 {
     public Movable movable;
@@ -37,13 +34,13 @@ public class UserMoveController : MonoBehaviour
 
         if (keyUp)
             movable.DefferedStop();
-       
+
         //挖洞
         if (Input.GetKeyDown(KeyCode.J))
-            digHole(-1,-1);
+            digHole(-1, -1);
 
         if (Input.GetKeyDown(KeyCode.K))
-            digHole(1,-1);
+            digHole(1, -1);
     }
 
     private void FixedUpdate()
@@ -51,9 +48,9 @@ public class UserMoveController : MonoBehaviour
         movable.UpdateMove(footMask);
     }
 
-    void digHole(int offsetX,int offsetY)
+    void digHole(int offsetX, int offsetY)
     {
-        Vector2 tileIndex =graphBuilder.getTileIndex(transform.position);
+        Vector2 tileIndex = graphBuilder.getTileIndex(transform.position);
 
         int targetX = (int)tileIndex.x + offsetX;
         int targetY = (int)tileIndex.y + offsetY;

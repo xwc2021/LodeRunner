@@ -1,0 +1,20 @@
+public enum MovableMsg
+{
+    preMove,
+    onAir,
+    landing,
+    onLabber,
+    onRope,
+    toNormal,
+    moveLeft,
+    moveRight,
+    moveUp,
+    moveDown,
+    stopMove,
+    jumpFromRope,
+    toKinematic,
+    breakKinematic,
+    fallToAlignRope,
+    fallToAlignRopeFinish,
+    wait
+}

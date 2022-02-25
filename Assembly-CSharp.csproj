@@ -36,17 +36,33 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\script\Controller\LodeRunner\UserMoveController.cs" />
+     <Compile Include="Assets\script\Controller\UserMoveController.cs" />
      <Compile Include="Assets\prefab\TileElement\LodeRunner\Trap.cs" />
-     <Compile Include="Assets\script\Controller\LodeRunner\AIMoveController.cs" />
-     <Compile Include="Assets\script\Controller\LodeRunner\Movable.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AIMoveState.cs" />
+     <Compile Include="Assets\script\Controller\Movable.cs" />
+     <Compile Include="Assets\script\Controller\AIMsg.cs" />
      <Compile Include="Assets\script\Graph\GraphMap.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AIMoveFromTrapState.cs" />
      <Compile Include="Assets\script\Graph\GraphNode.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AICatchPlayerState.cs" />
+     <Compile Include="Assets\script\Controller\MovableMsg.cs" />
      <Compile Include="Assets\script\Tile\TileData.cs" />
+     <Compile Include="Assets\script\Controller\AIMoveController.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AIWaitState.cs" />
      <Compile Include="Assets\script\GraphBuilder\LodeRunnerGraphBuilder.cs" />
-     <Compile Include="Assets\script\StateMachine.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AIFindingPathState.cs" />
      <Compile Include="Assets\prefab\TileElement\LodeRunner\Brick.cs" />
+     <Compile Include="Assets\script\StateMachine.cs" />
+     <Compile Include="Assets\script\Controller\AIState\AICatchByTrapState.cs" />
      <Compile Include="Assets\script\Tile\TileCreator.cs" />
+     <Compile Include="Assets\script\Controller\MoveCommand.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\KinematicState.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\NormalState.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\OnLabberState.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\OnRopeState.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\OnAirState.cs" />
+     <Compile Include="Assets\script\Controller\MoveState\FallToTargetState.cs" />
+     <Compile Include="Assets\script\Controller\DefferedMsg.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.26f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
@@ -269,6 +285,9 @@
     <Reference Include="UnityEditor.UnityConnectModule">
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.26f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+        <HintPath>C:\MyProj\LodeRunner\Library\PackageCache\com.unity.nuget.newtonsoft-json@2.0.0\Runtime\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
         <HintPath>C:\MyProj\LodeRunner\Library\PackageCache\com.unity.analytics@3.6.12\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
@@ -280,9 +299,6 @@
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
         <HintPath>C:\MyProj\LodeRunner\Library\PackageCache\com.unity.analytics@3.6.12\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-        <HintPath>C:\MyProj\LodeRunner\Library\PackageCache\com.unity.nuget.newtonsoft-json@2.0.0\Runtime\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.26f1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
@@ -647,11 +663,17 @@
     <Reference Include="Unity.VisualStudio.Editor">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Timeline">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing.SecurityStub">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Purchasing.SecurityStub.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
@@ -668,6 +690,9 @@
     <Reference Include="Analytics">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Analytics.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.SpatialTracking">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -680,11 +705,29 @@
     <Reference Include="UnityEngine.Purchasing.Codeless">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Purchasing.Codeless.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Purchasing.Stores">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Purchasing.Stores.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.XR.LegacyInputHelpers">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Monetization">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Monetization.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEditor.Purchasing">
         <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEditor.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.SpatialTracking">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements.Editor">
+        <HintPath>C:\MyProj\LodeRunner\Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

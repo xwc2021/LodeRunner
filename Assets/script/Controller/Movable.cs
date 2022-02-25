@@ -1,16 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-
-public enum MoveCommand { stop, left, right, up, down,wait,airMove }
-public class Movable : MonoBehaviour {
-
+public class Movable : MonoBehaviour
+{
     //參數
     //public static float MoveEpsilon = 0.001f;
     public static float MoveEpsilon = 0.01f;
-    static bool Debug_enter_state = false;
-    static bool Debug_do_moveUp = false;
+    public static bool Debug_enter_state = false;
+    public static bool Debug_do_moveUp = false;
     static bool Debug_adjustY = false;
     static bool Debug_fall_to_align_rope = false;
     static bool Debug_Oncoming = false;//迎面而來
@@ -32,22 +28,13 @@ public class Movable : MonoBehaviour {
     int AIMask;
 
     StateMachine<Movable> sm;
-    public StateMachine<Movable> getSM(){ return sm; }
+    public StateMachine<Movable> getSM() { return sm; }
 
-    bool asjustXWhenOnAir =true;
+    bool asjustXWhenOnAir = true;
     public void setAdjustXWhenOnAir(bool b) { asjustXWhenOnAir = b; }
-    bool getAdjustXWhenOnAir() { return asjustXWhenOnAir; }
+    public bool getAdjustXWhenOnAir() { return asjustXWhenOnAir; }
 
-    class DefferedMsg
-    {
-        public MovableMsg type;
-        public Vector2 diff;
-        public DefferedMsg(MovableMsg pType, Vector2 pDiff)
-        {
-            type = pType;
-            diff = pDiff;
-        }
-    }
+
 
     DefferedMsg defferedMsg;
 
@@ -60,10 +47,10 @@ public class Movable : MonoBehaviour {
         myAI = GetComponent<AIMoveController>();
     }
 
-    static float rigidHalfWidth=0.4f;//設為0.5的話，會找到上面的tile
+    static float rigidHalfWidth = 0.4f;//設為0.5的話，會找到上面的tile
     static float rigidHalfHeight = 0.4f;
 
-    bool checkIsOnLadderOrRopeTile()
+    public bool checkIsOnLadderOrRopeTile()
     {
         Vector2 pos = transform.position;
         Vector2 leftUp = pos + new Vector2(-rigidHalfWidth, rigidHalfHeight);
@@ -77,7 +64,7 @@ public class Movable : MonoBehaviour {
         Debug.DrawLine(leftUp, leftDown, Color.red);
         Debug.DrawLine(rightUp, rightDown, Color.red);
 
-        List<Vector2> list =new List<Vector2>();
+        List<Vector2> list = new List<Vector2>();
         list.Add(graphBuilder.getTileIndex(leftUp));
         list.Add(graphBuilder.getTileIndex(rightUp));
         list.Add(graphBuilder.getTileIndex(leftDown));
@@ -86,7 +73,7 @@ public class Movable : MonoBehaviour {
         bool onRope = false;
         foreach (Vector2 index in list)
         {
-            onRope =graphBuilder.isRope((int)index.x, (int)index.y);
+            onRope = graphBuilder.isRope((int)index.x, (int)index.y);
             if (onRope)
             {
                 //下面的情況，其實是因之前的bug靠成的，如果movalbe有stop就不會發生推擠..
@@ -138,7 +125,7 @@ public class Movable : MonoBehaviour {
             sendMsgToNormal();
             return false;
         }
-            
+
     }
 
     //有了這個機制，可以避免
@@ -155,8 +142,8 @@ public class Movable : MonoBehaviour {
     // .
     //-----
 
-    bool isFootTouchAI = false; 
-    void checkFootArea(int mask)
+    public bool isFootTouchAI = false;
+    public void checkFootArea(int mask)
     {
         float hwidth = 0.41f;//比collider box稍寬
         float top = -0.5f;
@@ -167,7 +154,7 @@ public class Movable : MonoBehaviour {
         Vector2 leftDown = pos + new Vector2(-hwidth, down);
         Vector2 rightDown = pos + new Vector2(hwidth, down);
 
-        Debug.DrawLine(leftUp, rightUp,Color.blue);
+        Debug.DrawLine(leftUp, rightUp, Color.blue);
         Debug.DrawLine(leftDown, rightDown, Color.blue);
         Debug.DrawLine(leftUp, leftDown, Color.blue);
         Debug.DrawLine(rightUp, rightDown, Color.blue);
@@ -176,7 +163,7 @@ public class Movable : MonoBehaviour {
         if (footTouchZone != null)
         {
             isFootTouchAI = footTouchZone.tag == "Monster";
-            
+
 
             sendMsgLanding();
 
@@ -213,7 +200,7 @@ public class Movable : MonoBehaviour {
 
                         if (Movable.Debug_fall_to_align_rope)
                             Debug.Log(name + ":fall To Align Rope Case [注意!] ");
-                        getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.fallToAlignRope,null));
+                        getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.fallToAlignRope, null));
                     }
                     break;
 
@@ -225,18 +212,18 @@ public class Movable : MonoBehaviour {
                         if (sm != null)
                         {
                             Debug.Log("cancel FadeOut");
-                            sm.handleMessage(new StateMsg<Brick>((int)BrickMsg.chancelFadeOut,null));
+                            sm.handleMessage(new StateMsg<Brick>((int)BrickMsg.chancelFadeOut, null));
                         }
                     }
                     break;
 
-    
+
                 case "Monster":
                     Vector2 dis = transform.position - footTouchZone.gameObject.transform.position;
-                        
-                    break;   
+
+                    break;
             }
-        
+
         }
         else
         {
@@ -253,12 +240,12 @@ public class Movable : MonoBehaviour {
         {
             checkFootArea(mask);
         }
-        
+
         sm.execute();
         nowState = sm.getCurrentState().ToString();
     }
 
-    bool nowTileIsBrick()//因為可能被玩家消去，所以不能只判斷tileValue
+    public bool nowTileIsBrick()//因為可能被玩家消去，所以不能只判斷tileValue
     {
         //對齊高度
         Vector2 nowIndex = graphBuilder.getTileIndex(transform.position);
@@ -271,12 +258,12 @@ public class Movable : MonoBehaviour {
             else
                 return false;
         }
-        else return false;  
+        else return false;
     }
 
-    bool downTileIsBlock()
+    public bool downTileIsBlock()
     {
-        Vector2 left = graphBuilder.getTileIndex(transform.position+new Vector3(-Movable.rigidHalfWidth,0,0));
+        Vector2 left = graphBuilder.getTileIndex(transform.position + new Vector3(-Movable.rigidHalfWidth, 0, 0));
         bool leftIsBlock = graphBuilder.isBlock((int)left.x, (int)left.y - 1);
 
         Vector2 right = graphBuilder.getTileIndex(transform.position + new Vector3(Movable.rigidHalfWidth, 0, 0));
@@ -284,7 +271,7 @@ public class Movable : MonoBehaviour {
         return leftIsBlock || rightIsBlock;
     }
 
-    bool downTileIsLadder()
+    public bool downTileIsLadder()
     {
         Vector2 left = graphBuilder.getTileIndex(transform.position + new Vector3(-Movable.rigidHalfWidth, 0, 0));
         bool leftIsLadder = graphBuilder.isLadder((int)left.x, (int)left.y - 1);
@@ -294,7 +281,7 @@ public class Movable : MonoBehaviour {
         return leftIsLadder || rightIsLadder;
     }
 
-    bool downTileIsRope()
+    public bool downTileIsRope()
     {
         Vector2 left = graphBuilder.getTileIndex(transform.position + new Vector3(-Movable.rigidHalfWidth, 0, 0));
         bool leftIsRope = graphBuilder.isRope((int)left.x, (int)left.y - 1);
@@ -304,13 +291,13 @@ public class Movable : MonoBehaviour {
         return leftIsRope || rightIsRope;
     }
 
-    bool downTileIsNull()
+    public bool downTileIsNull()
     {
         Vector2 now = graphBuilder.getTileIndex(transform.position);
         return graphBuilder.isNull((int)now.x, (int)now.y - 1);
     }
 
-    void adjustX()
+    public void adjustX()
     {
         Vector3 old = transform.position;
 
@@ -321,87 +308,87 @@ public class Movable : MonoBehaviour {
         //Debug.Log(name+":對齊高度 "+newY);
     }
 
-    void adjustY()
+    public void adjustY()
     {
         Vector3 old = transform.position;
-       
+
         //對齊高度
-        float newY = graphBuilder.getTileCenterPositionInWorld(old).y ;
+        float newY = graphBuilder.getTileCenterPositionInWorld(old).y;
         transform.position = new Vector3(old.x, newY, 0);
-        
-        if(Debug_adjustY)
-            Debug.Log(name+":對齊高度 "+newY);
+
+        if (Debug_adjustY)
+            Debug.Log(name + ":對齊高度 " + newY);
     }
 
-    public void sendMsgOnLadder(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onLabber,null));}
-    public void sendMsgOnRope(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onRope, null));}
-    public void sendMsgToNormal(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.toNormal, null));}
-    public void sendMsgLanding(){sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.landing, null));}
+    public void sendMsgOnLadder() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onLabber, null)); }
+    public void sendMsgOnRope() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onRope, null)); }
+    public void sendMsgToNormal() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.toNormal, null)); }
+    public void sendMsgLanding() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.landing, null)); }
     public void sendMsgOnAir() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.onAir, null)); }
 
     public void sendMsgMoveLeft() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveLeft, null)); }
     public void sendMsgMoveLeft(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveLeft, sender)); }
 
-    public void sendMsgMoveRight() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveRight,null)); }
+    public void sendMsgMoveRight() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveRight, null)); }
     public void sendMsgMoveRight(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveRight, sender)); }
 
-    public void sendMsgMoveUp() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveUp,null)); }
+    public void sendMsgMoveUp() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveUp, null)); }
     public void sendMsgMoveUp(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveUp, sender)); }
 
-    public void sendMsgMoveDown() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveDown,null)); }
+    public void sendMsgMoveDown() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveDown, null)); }
     public void sendMsgMoveDown(Movable sender) { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.moveDown, sender)); }
 
-    public void sendMsgStopMove() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.stopMove,null)); }
-    public void sendMsgWait() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.wait,null)); }
+    public void sendMsgStopMove() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.stopMove, null)); }
+    public void sendMsgWait() { sm.handleMessage(new StateMsg<Movable>((int)MovableMsg.wait, null)); }
 
     public MoveCommand moveCommand = MoveCommand.stop;
     public MoveCommand getMoveCommand() { return moveCommand; }
 
-    void doMoveRight()
+    public void doMoveRight()
     {
         moveCommand = MoveCommand.right;
         float y = (rigid.velocity.y > 0) ? 0 : rigid.velocity.y;
         rigid.velocity = new Vector2(velocity, y);
     }
 
-    void doMoveLeft()
+    public void doMoveLeft()
     {
         moveCommand = MoveCommand.left;
         float y = (rigid.velocity.y > 0) ? 0 : rigid.velocity.y;
         rigid.velocity = new Vector2(-velocity, y);
     }
 
-    void doMoveUp()
+    public void doMoveUp()
     {
         moveCommand = MoveCommand.up;
         rigid.velocity = new Vector2(0, velocity);
     }
 
-    void doMoveDown()
+    public void doMoveDown()
     {
         moveCommand = MoveCommand.down;
         rigid.velocity = new Vector2(0, -velocity);
     }
 
-    void doStopMove()
+    public void doStopMove()
     {
         moveCommand = MoveCommand.stop;
         rigid.velocity = new Vector2(0, 0);
     }
 
-    void doWait()
+    public void doWait()
     {
         moveCommand = MoveCommand.wait;
         rigid.velocity = new Vector2(0, 0);
     }
 
-    void doOnAirMove()
+    public void doOnAirMove()
     {
         moveCommand = MoveCommand.airMove;
         rigid.velocity = new Vector2(0, -onAirVelocity);
     }
 
-    void adjustWhenMoveOnRope()
+    public void adjustWhenMoveOnRope()
     {
         Vector3 nowPosition = transform.position;
         Vector2 nowIndex = graphBuilder.getTileIndex(nowPosition);
@@ -413,14 +400,14 @@ public class Movable : MonoBehaviour {
         }
     }
 
-    void adjustWhenFromLadderToRope()
+    public void adjustWhenFromLadderToRope()
     {
         Vector3 nowPosition = transform.position;
         Vector2 nowIndex = graphBuilder.getTileIndex(nowPosition);
         Vector3 nowTileCenter = graphBuilder.getTileCenterPositionInWorld(transform.position);
         if (graphBuilder.isRope((int)nowIndex.x, (int)nowIndex.y))
         {
-            Debug.Log(name+":adjust When From Ladder To Rope");
+            Debug.Log(name + ":adjust When From Ladder To Rope");
             float oldX = transform.position.x;
             transform.position = new Vector3(oldX, nowTileCenter.y, 0);
         }
@@ -449,20 +436,20 @@ public class Movable : MonoBehaviour {
                     transform.position = new Vector3(oldX, upTileCenter.y, 0);
                 }
             }
-        }  
+        }
     }
 
-    bool isJumpFromRope=false;
-    bool getIsJumpFromRope() { return isJumpFromRope; }
+    bool isJumpFromRope = false;
+    public bool getIsJumpFromRope() { return isJumpFromRope; }
     float fallTargetY;
-    void setFallTargetY(bool bIsJumpFromRope)
+    public void setFallTargetY(bool bIsJumpFromRope)
     {
         isJumpFromRope = bIsJumpFromRope;
         float oldY = transform.position.y;
         fallTargetY = oldY - 1;//oldY如果有對齊，fallTargetY就會對齊
     }
 
-    bool isFallToTaretReady()
+    public bool isFallToTaretReady()
     {
         //加上排隊機制
         Collider2D collider = tooCloseDetect(new Vector2(-Movable.tooCloseHalfLongSide, -Movable.tooCloseOffset - Movable.tooCloseShortSide),
@@ -473,7 +460,7 @@ public class Movable : MonoBehaviour {
                     );
         if (collider != null)
         {
-            Movable other= collider.GetComponent<Movable>();
+            Movable other = collider.GetComponent<Movable>();
 
             //因為存在這種case
             //LodeRunnerScreenshot\fixed\梯子和繩子相碰case.jpg
@@ -483,7 +470,7 @@ public class Movable : MonoBehaviour {
                 || other.getMoveCommand() == MoveCommand.right
                 || other.getMoveCommand() == MoveCommand.stop
                 || other.getMoveCommand() == MoveCommand.wait;
-  
+
             if (fitCommand)
                 doStopMove();
             else
@@ -501,17 +488,17 @@ public class Movable : MonoBehaviour {
     }
 
     public string nowStateStr;
-    void showNowState(string msg)
+    public void showNowState(string msg)
     {
         nowStateStr = msg;
     }
 
-    void printDebugMsg(string msg)
+    public void printDebugMsg(string msg)
     {
-        Debug.Log(name+":"+msg);
+        Debug.Log(name + ":" + msg);
     }
 
-    public Collider2D tooCloseDetect(Vector2 leftUp, Vector2 rightUp, Vector2 leftDown, Vector2 rightDown,int mask)
+    public Collider2D tooCloseDetect(Vector2 leftUp, Vector2 rightUp, Vector2 leftDown, Vector2 rightDown, int mask)
     {
         Vector2 pos = transform.position;
 
@@ -556,7 +543,7 @@ public class Movable : MonoBehaviour {
         else //看來是平手了
         {
             if (Debug_Oncoming)
-                printDebugMsg(ai.name + "等我 ("+myD+","+d+")");
+                printDebugMsg(ai.name + "等我 (" + myD + "," + d + ")");
             ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.waitForSomebody, myAI));
             doFunction(this);
         }
@@ -572,7 +559,7 @@ public class Movable : MonoBehaviour {
             return null;
     }
 
-    void preMove(Vector2 dir)
+    public void preMove(Vector2 dir)
     {
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
@@ -587,13 +574,13 @@ public class Movable : MonoBehaviour {
                     );
                 if (ai != null)
                 {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
-                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiOnAir = ai.movable.getSM().getCurrentState() == OnAirState.Instance();
                     bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.right
                         || ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.down
-                    || (ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);         
+                    || (ai.getMoveCommand() == MoveCommand.stop && isBothHorizontal);
 
                     bool stopSituation = fitCommand || aiOnAir || aiWaitButNotForMe;
                     if (stopSituation)
@@ -614,8 +601,8 @@ public class Movable : MonoBehaviour {
                     );
                 if (ai != null)
                 {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
-                    bool aiOnAir = ai.movable.getSM().getCurrentState() == Movable.OnAirState.Instance();
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiOnAir = ai.movable.getSM().getCurrentState() == OnAirState.Instance();
                     bool isBothHorizontal = Mathf.Abs(ai.transform.position.y - this.transform.position.y) < 0.5f;
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.left
                         || ai.getMoveCommand() == MoveCommand.up
@@ -643,7 +630,7 @@ public class Movable : MonoBehaviour {
                     );
                 if (ai != null)
                 {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
 
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.up
                         || ai.getMoveCommand() == MoveCommand.left
@@ -651,7 +638,7 @@ public class Movable : MonoBehaviour {
 
                     //LodeRunnerScreenshot\fixed\互等的情況.jpg
                     //爬梯子往上，碰到上面的AI是stop時，自己才要stop         
-                    bool aiStopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == Movable.OnLabberState.Instance();
+                    bool aiStopAndOnLadder = ai.getMoveCommand() == MoveCommand.stop && ai.movable.getSM().getCurrentState() == OnLabberState.Instance();
 
                     bool stopSituation = fitCommand || aiWaitButNotForMe || aiStopAndOnLadder;
 
@@ -668,12 +655,12 @@ public class Movable : MonoBehaviour {
                     else
                     {
                         //如果對方正往下落，就還是往上
-                        bool aiIsFallToTarget = ai.movable.getSM().getCurrentState() == Movable.FallToTargetState.Instance();
-                        if(aiIsFallToTarget)
+                        bool aiIsFallToTarget = ai.movable.getSM().getCurrentState() == FallToTargetState.Instance();
+                        if (aiIsFallToTarget)
                             this.sendMsgMoveUp(this);
                         else
-                        handleTooClose(ai, this.sendMsgMoveUp);
-                    }    
+                            handleTooClose(ai, this.sendMsgMoveUp);
+                    }
                 }
                 else
                     this.sendMsgMoveUp(this);
@@ -687,7 +674,7 @@ public class Movable : MonoBehaviour {
                     );
                 if (ai != null)
                 {
-                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
+                    bool aiWaitButNotForMe = ai.getSM().getCurrentState() == AIWaitState.Instance() && ai.getWaitAI() != this.myAI;
                     bool fitCommand = ai.getMoveCommand() == MoveCommand.down
                         || ai.getMoveCommand() == MoveCommand.left
                         || ai.getMoveCommand() == MoveCommand.right
@@ -705,17 +692,17 @@ public class Movable : MonoBehaviour {
         }
     }
 
-    void pushDeferredMessage(DefferedMsg msg)
+    public void pushDeferredMessage(DefferedMsg msg)
     {
         defferedMsg = msg;
     }
 
-    void clearDefferedMsg()
+    public void clearDefferedMsg()
     {
         defferedMsg = null;
     }
 
-    void handleDeferedMessage()
+    public void handleDeferedMessage()
     {
         if (defferedMsg != null)
         {
@@ -740,8 +727,8 @@ public class Movable : MonoBehaviour {
                 case MovableMsg.preMove:
 
                     bool excludeSituation = myAI != null
-                        && (myAI.getSM().getCurrentState() == AIMoveController.AIWaitState.Instance() ||
-                        myAI.getSM().getCurrentState() == AIMoveController.AICatchByTrapState.Instance());
+                        && (myAI.getSM().getCurrentState() == AIWaitState.Instance() ||
+                        myAI.getSM().getCurrentState() == AICatchByTrapState.Instance());
 
                     if (excludeSituation)
                         return;
@@ -757,407 +744,10 @@ public class Movable : MonoBehaviour {
         pushDeferredMessage(new DefferedMsg(MovableMsg.preMove, diff));
     }
 
-    public void DefferedMoveLeft(){pushDeferredMessage(new DefferedMsg(MovableMsg.moveLeft, Vector2.zero));}
+    public void DefferedMoveLeft() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveLeft, Vector2.zero)); }
     public void DefferedMoveRight() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveRight, Vector2.zero)); }
     public void DefferedMoveUp() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveUp, Vector2.zero)); }
     public void DefferedMoveDown() { pushDeferredMessage(new DefferedMsg(MovableMsg.moveDown, Vector2.zero)); }
     public void DefferedStop() { pushDeferredMessage(new DefferedMsg(MovableMsg.stopMove, Vector2.zero)); }
 
-    public class OnLabberState : State<Movable>
-    {
-        private OnLabberState() { }
-        static OnLabberState instance;
-        public static OnLabberState Instance()
-        {
-            if (instance == null)
-                instance = new OnLabberState();
-            return instance;
-        }
-        public override void enter(Movable obj)
-        {
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("Labber");
-
-            ////failToTarget才可以停住
-            obj.doStopMove();
-        }
-        public override void exit(Movable obj) { }
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("OnLabber ("+obj.getMoveCommand().ToString()+")");
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.onRope:
-                    obj.getSM().changeState(OnRopeState.Instance());
-                    break;
-                case MovableMsg.toNormal:
-                    obj.getSM().changeState(NormalState.Instance());
-                    break;
-                case MovableMsg.moveLeft:
-                    obj.doMoveLeft();
-                    break;
-                case MovableMsg.moveRight:
-                    obj.doMoveRight();
-                    break;
-                case MovableMsg.moveUp:
-                    obj.doMoveUp();
-                    break;
-                case MovableMsg.moveDown:
-                    obj.doMoveDown();
-                    break;
-                case MovableMsg.stopMove:
-                    obj.doStopMove();
-                    break;
-                case MovableMsg.wait:
-                    obj.doWait();
-                    break;
-            }
-        }
-    }
-
-    public class FallToTargetState : State<Movable>
-    {
-        private FallToTargetState() { }
-        static FallToTargetState instance;
-        public static FallToTargetState Instance()
-        {
-            if (instance == null)
-                instance = new FallToTargetState();
-            return instance;
-        }
-
-        public override void enter(Movable obj)
-        {
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("Fall To Target");
-        }
-
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("Fall To Target (" + obj.getMoveCommand().ToString() + ")");
-            if (obj.isFallToTaretReady())
-            {
-                obj.adjustY();
-                if (obj.getIsJumpFromRope())
-                    obj.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.jumpFromRope,null));
-                else
-                    obj.getSM().handleMessage(new StateMsg<Movable>((int)MovableMsg.fallToAlignRopeFinish,null));
-            }
-
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.jumpFromRope:
-                    obj.getSM().changeState(OnAirState.Instance());
-                    break;
-                case MovableMsg.fallToAlignRopeFinish:
-                    obj.getSM().changeState(OnRopeState.Instance());
-                    break;
-            }
-        }
-    }
-
-    public class OnRopeState : State<Movable>
-    {
-        private OnRopeState() { }
-        static OnRopeState instance;
-        public static OnRopeState Instance()
-        {
-            if (instance == null)
-                instance = new OnRopeState();
-            return instance;
-        }
-        public override void enter(Movable obj)
-        {
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("On Rope");
-
-            //failToTarget才可以停住
-            obj.doStopMove();
-
-            bool fromLadder = obj.getSM().getPreviousState() == OnLabberState.Instance();
-            bool fromAir = obj.getSM().getPreviousState() == OnAirState.Instance();
-
-            if (fromLadder)
-                obj.adjustWhenFromLadderToRope();
-            else if (fromAir)
-                obj.adjustY();
-        }
-        public override void exit(Movable obj) { }
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("On Rope State (" + obj.getMoveCommand().ToString() + ")");
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.onLabber:
-                    obj.getSM().changeState(OnLabberState.Instance());
-                    break;
-                case MovableMsg.toNormal:
-                    obj.getSM().changeState(NormalState.Instance());
-                    break;
-                case MovableMsg.moveDown://降落
-
-                    if (!obj.downTileIsBlock())
-                    {
-                        obj.setFallTargetY(true);
-                        obj.getSM().changeState(FallToTargetState.Instance());
-                    }
-
-                    break;
-                case MovableMsg.moveLeft:
-                    obj.doMoveLeft();
-                    obj.adjustWhenMoveOnRope();
-                    break;
-                case MovableMsg.moveRight:
-                    obj.doMoveRight();
-                    obj.adjustWhenMoveOnRope();
-                    break;
-                case MovableMsg.stopMove:
-                    obj.doStopMove();
-                    break;
-                case MovableMsg.wait:
-                    obj.doWait();
-                    break;
-                case MovableMsg.moveUp:
-                    //通知發訊者此動作無效
-                    if (msg.sender != null)
-                    {
-                        //從繩子移到JumpPoint會發動fall to rope，這時目標就停留在JumpPoint
-                        //  
-                        //--J  
-                        //  --
-                        if (Movable.Debug_do_moveUp)
-                            obj.printDebugMsg("[注意!]do MoveUp on rope");
-                        AIMoveController ai = msg.sender.myAI;
-                        ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
-                    }
-                    break;
-            }
-        }
-    }
-
-    public class OnAirState : State<Movable>
-    {
-        private OnAirState() { }
-        static OnAirState instance;
-        public static OnAirState Instance()
-        {
-            if (instance == null)
-                instance = new OnAirState();
-            return instance;
-        }
-        public override void enter(Movable obj)
-        {
-            //   .
-            //口口H口口
-            //AI在推擠的過程可能導致在空中時沒有對齊，然後在下面有入口時卡住
-            if (obj.getAdjustXWhenOnAir())
-                obj.adjustX();
-
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("OnAir");
-        }
-        public override void exit(Movable obj)
-        {
-        }
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("OnAir State ("+ obj.getMoveCommand().ToString()+")");
-            obj.doOnAirMove();
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.onRope:
-                    obj.getSM().changeState(OnRopeState.Instance());
-                    break;
-
-                case MovableMsg.onLabber:
-                    obj.getSM().changeState(OnLabberState.Instance());
-                    break;
-
-                case MovableMsg.landing:
-                    obj.getSM().changeState(NormalState.Instance());
-                    break;
-
-                case MovableMsg.toKinematic:
-                    obj.getSM().changeState(KinematicState.Instance());
-                    break;
-
-            }
-        }
-    }
-
-    public class NormalState : State<Movable>
-    {
-        private NormalState() { }
-        static NormalState instance;
-        public static NormalState Instance()
-        {
-            if (instance == null)
-                instance = new NormalState();
-            return instance;
-        }
-        public override void enter(Movable obj)
-        {
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("Normal");
-
-            //可以從onAir進來
-            obj.doStopMove();
-
-            //修正AI踩到AI就瞬移的問題
-            if (!obj.isFootTouchAI)
-            { 
-                //並且下面的tile是ladder、Rope、Brick、Stone、trap要調整高度
-                if (obj.downTileIsLadder() || obj.downTileIsBlock() || obj.downTileIsRope() || obj.nowTileIsBrick())
-                    obj.adjustY();
-
-            }
-        }
-        public override void exit(Movable obj) { }
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("Normal Stater(" + obj.getMoveCommand().ToString() + ")");
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.onLabber:
-                    obj.getSM().changeState(OnLabberState.Instance());
-                    break;
-                case MovableMsg.onRope:
-                    obj.getSM().changeState(OnRopeState.Instance());
-                    break;
-                case MovableMsg.onAir:
-                    obj.getSM().changeState(OnAirState.Instance());
-                    break;
-                case MovableMsg.fallToAlignRope://站在rope上時
-                    obj.setFallTargetY(false);
-                    obj.getSM().changeState(FallToTargetState.Instance());
-                    break;
-                case MovableMsg.moveLeft:
-                    obj.doMoveLeft();
-                    break;
-                case MovableMsg.moveRight:
-                    obj.doMoveRight();
-                    break;
-                case MovableMsg.stopMove:
-                    obj.doStopMove();
-                    break;
-                case MovableMsg.wait:
-                    obj.doWait();
-                    break;
-                case MovableMsg.moveDown:
-                    if (!obj.downTileIsBlock())
-                        obj.doMoveDown();
-                    break;
-                case MovableMsg.toKinematic:
-                    obj.getSM().changeState(KinematicState.Instance());
-                    break;
-                case MovableMsg.moveUp:
-                    //通知發訊者此動作無效
-                    if (msg.sender != null)
-                    {
-                        //解決[在梯子卡點]的問題
-                        //從H往下走，但因為有其他AI檔在下面，所以進入stop；之後reFindPath，y就會低於pathNode
-                        //  O
-                        //口H口口
-                        obj.adjustY();
-
-                        //這是為了解決從高處落下，MoveTargetPoint還在上面的問題(在normal狀態如果執行moveUp就觸發reFindPath)
-                        //   .
-                        //    口口
-                        //   .
-                        //口口口口
-
-                        //降落在Brick、Stone、ladder時觸發
-                        if (Movable.Debug_do_moveUp)
-                            obj.printDebugMsg("[注意!]do MoveUp on Normal");
-                        AIMoveController ai = msg.sender.myAI;
-                        ai.getSM().handleMessage(new StateMsg<AIMoveController>((int)AIMsg.reFindPath,null));
-                    }
-                    break;
-            }
-        }
-    }
-
-    public class KinematicState : State<Movable>
-    {
-        private KinematicState() { }
-        static KinematicState instance;
-        public static KinematicState Instance()
-        {
-            if (instance == null)
-                instance = new KinematicState();
-            return instance;
-        }
-
-        public override void enter(Movable obj)
-        {
-            if (Movable.Debug_enter_state)
-                obj.printDebugMsg("Kinematic");
-
-            obj.rigid.isKinematic = true;
-        }
-
-        public override void exit(Movable obj)
-        {
-            obj.rigid.isKinematic = false;
-        }
-
-        public override void execute(Movable obj)
-        {
-            obj.showNowState("Kinematic State");
-        }
-
-        public override void onMessage(Movable obj, StateMsg<Movable> msg)
-        {
-            MovableMsg type = (MovableMsg)msg.type;
-            switch (type)
-            {
-                case MovableMsg.breakKinematic:
-                    obj.getSM().changeState(NormalState.Instance());
-                    break;
-                case MovableMsg.moveLeft:
-                    obj.doMoveLeft();
-                    break;
-                case MovableMsg.moveRight:
-                    obj.doMoveRight();
-                    break;
-                case MovableMsg.moveUp:
-                    obj.doMoveUp();
-                    break;
-                case MovableMsg.stopMove:
-                    obj.doStopMove();
-                    break;
-                case MovableMsg.wait:
-                    obj.doWait();
-                    break;
-            }
-        }
-    }
 }
-
-enum MovableMsg {preMove,onAir, landing, onLabber,onRope,toNormal,moveLeft,moveRight,moveUp,moveDown,stopMove,jumpFromRope, toKinematic, breakKinematic, fallToAlignRope, fallToAlignRopeFinish,wait }
-

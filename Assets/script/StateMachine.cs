@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class StateMachine<T>
+﻿public class StateMachine<T>
 {
     T obj;
     State<T> current;
@@ -14,7 +12,7 @@ public class StateMachine<T>
 
     public void handleMessage(StateMsg<T> msg)
     {
-        current.onMessage(obj,msg);
+        current.onMessage(obj, msg);
     }
 
     public State<T> getCurrentState()
@@ -29,7 +27,7 @@ public class StateMachine<T>
 
     public void changeState(State<T> newState)
     {
-        if(current!=null)
+        if (current != null)
             current.exit(obj);
 
         previous = current;
